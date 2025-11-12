@@ -101,18 +101,8 @@ header p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
-}
-
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 600px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+  grid-auto-rows: 8px;   /* tiny base row size */
+  align-items: start;    /* cards keep their own height */
 }
 
 .card {
@@ -456,6 +446,9 @@ if (item.image) {
         grid.appendChild(card);
       });
 
+applyMasonry();
+window.addEventListener("resize", () => applyMasonry());
+      
       const statusEl = document.getElementById("status");
       if (filtered.length === 0 && allArticles.length > 0) {
         statusEl.textContent = "Geen artikelen matchen deze filters.";
@@ -540,7 +533,19 @@ card.appendChild(content);
 
 return card;
     }
+function applyMasonry() {
+  const grid = document.getElementById("grid");
+  const row = parseInt(getComputedStyle(grid).getPropertyValue("grid-auto-rows"), 10);
+  const gap = parseInt(getComputedStyle(grid).getPropertyValue("gap"), 10);
+
+  Array.from(grid.children).forEach(item => {
+    const height = item.getBoundingClientRect().height;
+    const span = Math.ceil((height + gap) / (row + gap));
+    item.style.gridRowEnd = `span ${span}`;
+  });
+}
   </script>
 </body>
 
 </html>
+
