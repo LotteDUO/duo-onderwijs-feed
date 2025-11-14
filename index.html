@@ -313,7 +313,8 @@ function hostToSourceLabel(host) {
     "vo-raad.nl": "VO-raad",
     "cito.nl": "Cito",
     "vorsite.nl": "VOR",
-"slo.nl": "SLO"
+    "slo.nl": "SLO",
+    "nieuwsbrievenminocw.nl": "OCW"
     // you can add more later if needed
   };
   return map[host] || "";
@@ -330,7 +331,8 @@ function fallbackImageForHost(host) {
     "vo-raad.nl": "https://cdn.sanity.io/images/mccftp3c/production/551a786ef3eeead61918fe982fd5e586140697fa-1500x855.jpg",
     "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
     "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
-"slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg"
+    "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
+    "nieuwsbrievenminocw.nl":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png"
   };
   return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
 }
@@ -544,3 +546,4 @@ return card;
   </script>
 </body>
 </html>
+
