@@ -256,6 +256,7 @@ margin: 0;               /* Grid gap controls spacing */
   <script>
     // JSON Feed URL for this magazine
     const FEED_URL = "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json";
+    const MAX_PER_HOST = 6; // change this number to allow more/less articles per host
 
     let allArticles = [];
     let activeTags = new Set();
@@ -375,9 +376,11 @@ if (item.image) {
     pubDate,
     author,      // still used for display under the title
     categories,  // now stable, organisation-based tags
-    image
+    image,
+    host         // used to limit number of posts per host
   };
 }
+
 
 
     function buildTagButtons(articles) {
@@ -428,45 +431,65 @@ if (item.image) {
       });
     }
 
-    function renderArticles() {
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
+function renderArticles() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
 
-      const filtered = allArticles.filter(article => {
-        // Tag filter
-        if (activeTags.size > 0) {
-          const hasTag = article.categories.some(tag => activeTags.has(tag));
-          if (!hasTag) return false;
-        }
-
-        // Text search
-        if (searchQuery) {
-          const text = (
-            article.title +
-            " " +
-            article.description +
-            " " +
-            article.author
-          ).toLowerCase();
-          if (!text.includes(searchQuery)) return false;
-        }
-
-        return true;
-      });
-
-      filtered.forEach(article => {
-        const card = createCard(article);
-        grid.appendChild(card);
-      });
-
-      const statusEl = document.getElementById("status");
-      if (filtered.length === 0 && allArticles.length > 0) {
-        statusEl.textContent = "Geen artikelen matchen deze filters.";
-      } else if (allArticles.length > 0) {
-        statusEl.textContent = "Weergegeven: " + filtered.length + " van " + allArticles.length + " artikelen.";
-        statusEl.classList.remove("error");
-      }
+  // 1. Apply tag + text filters
+  const filtered = allArticles.filter(article => {
+    // Tag filter
+    if (activeTags.size > 0) {
+      const hasTag = article.categories.some(tag => activeTags.has(tag));
+      if (!hasTag) return false;
     }
+
+    // Text search
+    if (searchQuery) {
+      const text = (
+        article.title +
+        " " +
+        article.description +
+        " " +
+        article.author
+      ).toLowerCase();
+      if (!text.includes(searchQuery)) return false;
+    }
+
+    return true;
+  });
+
+  // 2. Apply per-host limit
+  const hostCounts = {};
+  const limited = [];
+
+  filtered.forEach(article => {
+    const host = article.host || "unknown";
+    if (!hostCounts[host]) {
+      hostCounts[host] = 0;
+    }
+
+    if (hostCounts[host] < MAX_PER_HOST) {
+      hostCounts[host]++;
+      limited.push(article);
+    }
+  });
+
+  // 3. Render only the limited list
+  limited.forEach(article => {
+    const card = createCard(article);
+    grid.appendChild(card);
+  });
+
+  // 4. Status text
+  const statusEl = document.getElementById("status");
+  if (limited.length === 0 && allArticles.length > 0) {
+    statusEl.textContent = "Geen artikelen matchen deze filters.";
+  } else if (allArticles.length > 0) {
+    statusEl.textContent =
+      "Weergegeven: " + limited.length + " van " + allArticles.length + " artikelen.";
+    statusEl.classList.remove("error");
+  }
+}
 
     function createCard(article) {
       const card = document.createElement("article");
@@ -546,4 +569,5 @@ return card;
   </script>
 </body>
 </html>
+
 
