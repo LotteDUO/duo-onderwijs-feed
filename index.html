@@ -315,7 +315,12 @@ function hostToSourceLabel(host) {
     "cito.nl": "Cito",
     "vorsite.nl": "VOR",
     "slo.nl": "SLO",
-    "nieuwsbrievenminocw.nl": "OCW"
+    "nieuwsbrievenminocw.nl": "OCW",
+    "duo-onderwijs.nl":"DUO",
+    "verus.nl":"Verus",
+    "vfpf.nl":"VfPf",
+    "nji.nl":"NJi",
+    "avs.nl":"AVS"
     // you can add more later if needed
   };
   return map[host] || "";
@@ -333,7 +338,12 @@ function fallbackImageForHost(host) {
     "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
     "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
     "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
-    "nieuwsbrievenminocw.nl":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png"
+    "nieuwsbrievenminocw.nl":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png",
+    "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
+    "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
+    "vfpf.nl":"https://informatieprofessional.nl/resources/uploads/2024/11/cropped-Logo_Vervangingsfonds_Participatiefonds_RGB-1-Corine-De-Jong.jpg",
+    "nji.nl":"https://www.nji.nl/logo.svg",
+    "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg"
   };
   return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
 }
@@ -569,5 +579,6 @@ return card;
   </script>
 </body>
 </html>
+
 
 
