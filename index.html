@@ -307,8 +307,8 @@ margin: 0;               /* Grid gap controls spacing */
       .flatMap(r => r.value);
 
     // Map into your normalized article format
-    allArticles = combinedItems.map(mapItemToArticle);
-
+    allArticles = combinedItems.map(mapItemToArticle).filter(Boolean);
+    
     // OPTIONAL: de-duplicate (by link)
     const seen = new Set();
     allArticles = allArticles.filter(a => {
@@ -343,7 +343,12 @@ function extractHostFromUrl(url) {
     return "";
   }
 }
-
+    
+function isBlockedUrl(url) {
+  const host = extractHostFromUrl(url);
+  return BLOCKED_HOSTS.has(host);
+}
+    
 // Map hostnames to nice, stable source labels
 function hostToSourceLabel(host) {
   const map = {
@@ -387,9 +392,8 @@ function fallbackImageForHost(host) {
     "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
     "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
     "vfpf.nl":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
-    "https://www.vfpf.nl/static/share-image.png":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
     "nji.nl":"https://www.nji.nl/logo.svg",
-    "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg"
+    "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg",
     "cnv.nl":"https://www.sommbo.nl/wp-content/uploads/CNV-1.png",
     "dnmonline.nl":"https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
     "didactiefonline.nl":"https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
@@ -402,6 +406,7 @@ function fallbackImageForHost(host) {
     function mapItemToArticle(item) {
   const title = item.title || "Untitled";
   const link = item.url || "#";
+  if (link !== "#" && isBlockedUrl(link)) return null;
   const description = item.content_text || "";
   const pubDate = item.date_published || "";
 
@@ -637,13 +642,3 @@ return card;
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
