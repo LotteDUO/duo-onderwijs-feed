@@ -259,7 +259,7 @@ margin: 0;               /* Grid gap controls spacing */
     const FEED_URLS = [
       "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json",
       "https://rss.app/feeds/v1.1/_iccmMsqOiAvSwuxw.json",
-      // "https://rss.app/feeds/v1.1/______.json",
+      "https://rss.app/feeds/v1.1/_jP0bIK60FpRheHgg.json",
       // "https://example.com/feed.json",
     ];
     const MAX_PER_HOST = 6; // change this number to allow more/less articles per host
@@ -371,6 +371,10 @@ function hostToSourceLabel(host) {
     "dnmonline.nl":"De Nieuwe Meso",
     "didactiefonline.nl":"Didactief",
     "expertisepuntburgerschap.nl":"Expertisecentrum Burgerschap",
+    "gespecialiseerdonderwijs.nl":"Sectorraad GO",
+    "gezondeschool.nl":"Gezonde School",
+    "kennisnet.nl":"Kennisnet",
+    "nationaleonderwijsgids.nl":"Nationale Onderwijsgids",
     // you can add more later if needed
   };
   return map[host] || "";
@@ -398,6 +402,10 @@ function fallbackImageForHost(host) {
     "dnmonline.nl":"https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
     "didactiefonline.nl":"https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
     "expertisepuntburgerschap.nl":"https://www.expertisepuntburgerschap.nl/wp-content/themes/stuurlui/assets/img/logo.svg",
+    "gespecialiseerdonderwijs.nl":"https://gespecialiseerdonderwijs.nl/wp-content/themes/gespecialiseerdonderwijs/build/img/sectorraad-go.b9b064d1.svg",
+    "gezondeschool.nl":"https://www.gezondeschool.nl/assets/img/logo.svg",
+    "kennisnet.nl":"https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
+    "nationaleonderwijsgids.nl":"https://www.kieresoe.nl/wp-content/uploads/2018/12/nationale-onderwijsgids.png",
   };
   return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
 }
@@ -642,3 +650,4 @@ return card;
   </script>
 </body>
 </html>
+
