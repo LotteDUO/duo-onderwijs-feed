@@ -63,37 +63,23 @@ header p {
       min-width: 220px;
       outline: none;
     }
+    
+    .filters select {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid #2e3a1a;
+      min-width: 220px;
+      background: white;
+    }
+    
+    .filters select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+    }
 
     .filters input[type="text"]:focus {
       border-color: #2e3a1a;
       box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-    }
-
-    .tag-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .tag-button {
-      border-radius: 999px;
-      border: 1px solid #2e3a1a;
-      padding: 5px 12px;
-      font-size: 0.8rem;
-      color: #2e3a1a; 
-      background: #cdff79;
-      cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease;
-    }
-
-    .tag-button.active {
-      background: #2e3a1a;
-      color: #cdff79;
-      border-color: #cdff79;
-    }
-
-    .tag-button:hover {
-      border-color: #cdff79;
     }
 
     /* --- Magazine grid --- */
@@ -243,9 +229,10 @@ margin: 0;               /* Grid gap controls spacing */
         Zoeken:
         <input type="text" id="searchInput" placeholder="Filter op titel, tekst of bron…" />
       </label>
-      <div class="tag-buttons" id="tagButtons">
-        <!-- Tag buttons will be injected here -->
-      </div>
+      <label>
+        Bronnen:
+        <select id="sourceSelect" multiple size="1"></select>
+      </label>
     </div>
 
     <div id="status" class="status">Artikelen worden geladen…</div>
@@ -320,7 +307,7 @@ margin: 0;               /* Grid gap controls spacing */
     // OPTIONAL: sort newest first
     allArticles.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
 
-    buildTagButtons(allArticles);
+    buildSourceSelect(allArticles);
     renderArticles();
 
     const failedCount = results.filter(r => r.status === "rejected").length;
@@ -352,38 +339,36 @@ function isBlockedUrl(url) {
 // Map hostnames to nice, stable source labels
 function hostToSourceLabel(host) {
   const map = {
-    "aob.nl": "AOb",
-    "poraad.nl": "PO-Raad",
-    "kennisnet.nl": "Kennisnet",
-    "lezen.nl": "Stichting Lezen",
-    "nro.nl": "NRO",
-    "vo-raad.nl": "VO-raad",
-    "cito.nl": "Cito",
-    "vorsite.nl": "VOR",
-    "slo.nl": "SLO",
-    "nieuwsbrievenminocw.nl": "OCW",
-    "duo-onderwijs.nl":"DUO",
-    "verus.nl":"Verus",
-    "vfpf.nl":"VfPf",
-    "nji.nl":"NJi",
-    "avs.nl":"AVS",
-    "cnv.nl":"CNV",
-    "dnmonline.nl":"De Nieuwe Meso",
-    "didactiefonline.nl":"Didactief",
-    "expertisepuntburgerschap.nl":"Expertisecentrum Burgerschap",
-    "gespecialiseerdonderwijs.nl":"Sectorraad GO",
-    "gezondeschool.nl":"Gezonde School",
-    "kennisnet.nl":"Kennisnet",
-    "nationaleonderwijsgids.nl":"Nationale Onderwijsgids",
-    "noloc.nl":"NOLOC",
-    "ou.nl":"Open Universiteit",
-    "oudersenonderwijs.nl":"Ouders & Onderwijs",
-    "schoolenveiligheid.nl":"School & Veiligheid",
-    "voion.nl":"Voion",
-    "voo.nl":"VOO",
-    "steunpuntpassendonderwijs-povo.nl":"Steunpunt Passend Onderwijs",
-    "platformsamenopleiden.nl":"Platform Samen Opleiden",
-    "vosabb.nl":"VOS/ABB",
+      "aob.nl": "AOb",
+      "avs.nl":"AVS",
+      "cito.nl": "Cito",
+      "cnv.nl":"CNV",
+      "didactiefonline.nl":"Didactief",
+      "dnmonline.nl":"De Nieuwe Meso",
+      "duo-onderwijs.nl":"DUO",
+      "expertisepuntburgerschap.nl":"Expertisecentrum Burgerschap",
+      "gespecialiseerdonderwijs.nl":"Sectorraad GO",
+      "gezondeschool.nl":"Gezonde School",
+      "kennisnet.nl": "Kennisnet",
+      "lezen.nl": "Stichting Lezen",
+      "nationaleonderwijsgids.nl":"Nationale Onderwijsgids",
+      "nji.nl":"NJi",
+      "noloc.nl":"NOLOC",
+      "nieuwsbrievenminocw.nl": "OCW",
+      "ou.nl":"Open Universiteit",
+      "oudersenonderwijs.nl":"Ouders & Onderwijs",
+      "platformsamenopleiden.nl":"Platform Samen Opleiden",
+      "poraad.nl": "PO-Raad",
+      "schoolenveiligheid.nl":"School & Veiligheid",
+      "slo.nl": "SLO",
+      "steunpuntpassendonderwijs-povo.nl":"Steunpunt Passend Onderwijs",
+      "verus.nl":"Verus",
+      "vfpf.nl":"VfPf",
+      "vo-raad.nl": "VO-raad",
+      "voion.nl":"Voion",
+      "voo.nl":"VOO",  
+      "vorsite.nl": "VOR",
+      "vosabb.nl":"VOS/ABB",      
     // you can add more later if needed
   };
   return map[host] || "";
@@ -393,36 +378,35 @@ function hostToSourceLabel(host) {
 function fallbackImageForHost(host) {
   const map = {
     "aob.nl": "https://i.ytimg.com/vi/oRAxkBjuEkA/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AH-CYAC0AWKAgwIABABGCMgZSgYMA8=&rs=AOn4CLCBSJUW1ORaDc-EY3JpgpnUyrvnGw",
-    "poraad.nl": "https://www.poraad.nl/logo.svg",
-    "kennisnet.nl": "https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
-    "lezen.nl": "https://www.noblestreet.eu/wp-content/uploads/2022/08/stichting-lezen.jpg",
-    "nro.nl": "https://media.licdn.com/dms/image/v2/D4E22AQHg5yqWPpeI-A/feedshare-shrink_800/B4EZova_k6IoAk-/0/1761732197755?e=2147483647&v=beta&t=S6ODw3RPQxinfcZVEtenfUdkqML0Yy8aYNmPHxixV0k",
-    "vo-raad.nl": "https://cdn.sanity.io/images/mccftp3c/production/551a786ef3eeead61918fe982fd5e586140697fa-1500x855.jpg",
-    "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
-    "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
-    "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
-    "nieuwsbrievenminocw.nl":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png",
-    "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
-    "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
-    "vfpf.nl":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
-    "nji.nl":"https://www.nji.nl/logo.svg",
     "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg",
+    "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
     "cnv.nl":"https://www.sommbo.nl/wp-content/uploads/CNV-1.png",
-    "dnmonline.nl":"https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
     "didactiefonline.nl":"https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
+    "dnmonline.nl":"https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
+    "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
     "expertisepuntburgerschap.nl":"https://www.expertisepuntburgerschap.nl/wp-content/themes/stuurlui/assets/img/logo.svg",
     "gespecialiseerdonderwijs.nl":"https://gespecialiseerdonderwijs.nl/wp-content/themes/gespecialiseerdonderwijs/build/img/sectorraad-go.b9b064d1.svg",
     "gezondeschool.nl":"https://www.gezondeschool.nl/assets/img/logo.svg",
-    "kennisnet.nl":"https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
+    "kennisnet.nl": "https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
+    "lezen.nl": "https://www.noblestreet.eu/wp-content/uploads/2022/08/stichting-lezen.jpg",
     "nationaleonderwijsgids.nl":"https://www.kieresoe.nl/wp-content/uploads/2018/12/nationale-onderwijsgids.png",
+    "nji.nl":"https://www.nji.nl/logo.svg",
     "noloc.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6h1pz57hRhG7jzWPjSeaieXvOSMpque2YuQ&s",
+    "nieuwsbrievenminocw.nl":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png",
+    "nro.nl": "https://media.licdn.com/dms/image/v2/D4E22AQHg5yqWPpeI-A/feedshare-shrink_800/B4EZova_k6IoAk-/0/1761732197755?e=2147483647&v=beta&t=S6ODw3RPQxinfcZVEtenfUdkqML0Yy8aYNmPHxixV0k",
     "ou.nl":"https://studiegids.nl/wp-content/themes/herald-child/images/open-universiteit.png",
     "oudersenonderwijs.nl":"https://oudersenonderwijs.nl/wp-content/uploads/2020/05/logo-e1590324367608.png",
+    "platformsamenopleiden.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROSJ1XLlL5LnobLWsgT-pRz5wBXLDArlgb_Q&s",
+    "poraad.nl": "https://www.poraad.nl/logo.svg",
     "schoolenveiligheid.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzkpAOfWlNha3LjxHEBOMW44HERCXi8yRWrw&s",
+    "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
+    "steunpuntpassendonderwijs-povo.nl":"https://www.steunpuntpassendonderwijs-povo.nl/wp-content/uploads/2021/06/new-logo.svg",
+    "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
+    "vfpf.nl":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
+    "vo-raad.nl": "https://cdn.sanity.io/images/mccftp3c/production/551a786ef3eeead61918fe982fd5e586140697fa-1500x855.jpg",
     "voion.nl":"https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
     "voo.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ552umSwbhMhYJSc3_0UaYfAti5RMJozh7eQ&s",
-    "steunpuntpassendonderwijs-povo.nl":"https://www.steunpuntpassendonderwijs-povo.nl/wp-content/uploads/2021/06/new-logo.svg",
-    "platformsamenopleiden.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROSJ1XLlL5LnobLWsgT-pRz5wBXLDArlgb_Q&s",
+    "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
     "vosabb.nl":"https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
   };
   return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
@@ -471,48 +455,40 @@ if (item.image) {
     host         // used to limit number of posts per host
   };
 }
+    
+function buildSourceSelect(articles) {
+  const select = document.getElementById("sourceSelect");
+  select.innerHTML = "";
 
+  const tagSet = new Set();
+  articles.forEach(article => {
+    article.categories.forEach(tag => {
+      if (tag && typeof tag === "string") tagSet.add(tag.trim());
+    });
+  });
 
+  const tags = Array.from(tagSet).sort();
 
-    function buildTagButtons(articles) {
-      const tagButtonsContainer = document.getElementById("tagButtons");
-      tagButtonsContainer.innerHTML = "";
+  // Placeholder option (not selectable)
+  const placeholder = document.createElement("option");
+  placeholder.textContent = "Selecteer bronnen…";
+  placeholder.disabled = true;
+  placeholder.hidden = true;
+  select.appendChild(placeholder);
 
-      const tagSet = new Set();
-      articles.forEach(article => {
-        article.categories.forEach(tag => {
-          if (tag && typeof tag === "string") {
-            tagSet.add(tag.trim());
-          }
-        });
-      });
+  tags.forEach(tag => {
+    const opt = document.createElement("option");
+    opt.value = tag;
+    opt.textContent = tag;
+    select.appendChild(opt);
+  });
 
-      const tags = Array.from(tagSet).sort();
-
-      if (tags.length === 0) {
-        return;
-      }
-
-      tags.forEach(tag => {
-        const btn = document.createElement("button");
-        btn.className = "tag-button";
-        btn.textContent = tag;
-        btn.dataset.tag = tag;
-
-        btn.addEventListener("click", () => {
-          if (activeTags.has(tag)) {
-            activeTags.delete(tag);
-            btn.classList.remove("active");
-          } else {
-            activeTags.add(tag);
-            btn.classList.add("active");
-          }
-          renderArticles();
-        });
-
-        tagButtonsContainer.appendChild(btn);
-      });
-    }
+  // Change handler updates activeTags
+  select.addEventListener("change", () => {
+    activeTags = new Set(Array.from(select.selectedOptions).map(o => o.value));
+    renderArticles();
+  });
+}
 
     function setupSearch() {
       const input = document.getElementById("searchInput");
@@ -668,5 +644,3 @@ return card;
   </script>
 </body>
 </html>
-
-
