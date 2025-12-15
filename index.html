@@ -542,17 +542,17 @@ if (item.image) {
 
   const categories = sourceLabel ? [sourceLabel] : [];
 
-  return {
-    title,
-    link,
-    description,
-    pubDate,
-    author,      // still used for display under the title
-    categories,  // now stable, organisation-based tags
-    image,
-    host         // used to limit number of posts per host
-  };
-}
+return {
+  title,
+  link,
+  description,
+  pubDate,
+  author,          // keep it if you might need it later
+  source: sourceLabel, // 👈 NEW: formatted source name
+  categories,
+  image,
+  host
+};
           
       function updateSourceTriggerText(allTags) {
         const textEl = document.getElementById("sourceTriggerText");
@@ -755,10 +755,10 @@ function createCard(article) {
         });
         meta.appendChild(dateSpan);
       }
-      if (article.author) {
-        const authorSpan = document.createElement("span");
-        authorSpan.textContent = "· " + article.author;
-        meta.appendChild(authorSpan);
+      if (article.source) {
+        const sourceSpan = document.createElement("span");
+        sourceSpan.textContent = "· " + article.source;
+        meta.appendChild(sourceSpan);
       }
       content.appendChild(meta);
 
@@ -803,6 +803,7 @@ return card;
   </script>
 </body>
 </html>
+
 
 
 
