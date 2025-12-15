@@ -1,86 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Onderwijs – Magazine</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    /* --- Basic reset --- */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Onderwijs – Magazine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f4f4ed;
-      color: #1f2933;
-      padding: 20px;
-    }
+    <style>
+      /* ==========================================================================
+         Base / Reset
+         ========================================================================== */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    .page {
-      max-width: 1300px;
-      margin: 0 auto;
-    }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f4f4ed;
+        color: #1f2933;
+        padding: 20px;
+      }
 
-    header {
-      margin-bottom: 20px;
-    }
+      .page {
+        max-width: 1300px;
+        margin: 0 auto;
+      }
 
- header h1 {
-  font-size: 2.5rem;         
-  font-weight: 700;
-  color: #2e3a1a;              
-letter-spacing: -0.5px;
-  margin-bottom: 0.5rem;
-}
+      /* ==========================================================================
+         Header
+         ========================================================================== */
+      header {
+        margin-bottom: 20px;
+      }
 
-header p {
-  font-size: 1.1rem;         
-  color: #2e3a1a;                   
-  margin-bottom: 0.1rem;
-}
+      header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2e3a1a;
+        letter-spacing: -0.5px;
+        margin-bottom: 0.5rem;
+      }
 
-    /* --- Filter bar --- */
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 15px 0;
-      align-items: center;
-    }
+      header p {
+        font-size: 1.1rem;
+        color: #2e3a1a;
+        margin-bottom: 0.1rem;
+      }
 
-    .filters label {
-      font-size: 0.9rem;
-      color: #2e3a1a;
-    }
+      /* ==========================================================================
+         Filters
+         ========================================================================== */
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 15px 0;
+        align-items: center;
+      }
 
-    .filters input[type="text"] {
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid #2e3a1a;
-      min-width: 220px;
-      outline: none;
-    }
+      .filters label {
+        font-size: 0.9rem;
+        color: #2e3a1a;
+      }
 
-    .filters input[type="text"]:focus {
-      border-color: #2e3a1a;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-    }
-      
-          .multi-select {
+      .filters input[type="text"] {
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid #2e3a1a;
+        min-width: 220px;
+        outline: none;
+      }
+
+      .filters input[type="text"]:focus {
+        border-color: #2e3a1a;
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+      }
+
+      /* ==========================================================================
+         Multi-select dropdown
+         ========================================================================== */
+      .multi-select {
         position: relative;
         display: inline-flex;
         align-items: center;
         gap: 8px;
       }
-      
+
       .multi-label {
         font-size: 0.9rem;
         color: #2e3a1a;
       }
-      
+
       .multi-trigger {
         display: inline-flex;
         align-items: center;
@@ -94,17 +105,17 @@ header p {
         color: #2e3a1a;
         cursor: pointer;
       }
-      
+
       .multi-trigger:focus {
         outline: none;
         box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
       }
-      
+
       .multi-trigger .chev {
         font-size: 0.9rem;
         opacity: 0.8;
       }
-      
+
       .multi-panel {
         position: absolute;
         top: calc(100% + 8px);
@@ -119,13 +130,13 @@ header p {
         box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
         padding: 10px;
       }
-      
+
       .multi-actions {
         display: flex;
         gap: 8px;
         margin-bottom: 10px;
       }
-      
+
       .multi-actions .mini {
         border: 1px solid #2e3a1a;
         background: #cdff79;
@@ -135,12 +146,12 @@ header p {
         font-size: 0.8rem;
         cursor: pointer;
       }
-      
+
       .multi-options {
         display: grid;
         gap: 6px;
       }
-      
+
       .multi-option {
         display: flex;
         align-items: center;
@@ -148,415 +159,457 @@ header p {
         padding: 6px 8px;
         border-radius: 10px;
       }
-      
+
       .multi-option:hover {
         background: rgba(205, 255, 121, 0.25);
       }
-      
+
       .multi-option input[type="checkbox"] {
         width: 16px;
         height: 16px;
         accent-color: #2e3a1a;
       }
-      
+
       .multi-option span {
         font-size: 0.9rem;
         color: #2e3a1a;
       }
 
-    /* --- Magazine grid --- */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
+      /* ==========================================================================
+         Magazine grid
+         ========================================================================== */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
 
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+      @media (max-width: 900px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
 
-@media (max-width: 600px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
+      @media (max-width: 600px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
 
+      /* ==========================================================================
+         Cards
+         ========================================================================== */
+      .card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        display: block; /* Grid will size the item */
+        width: auto;
+        margin: 0; /* Grid gap controls spacing */
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        cursor: pointer;
+      }
 
-.card {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-display: block;          /* Grid will size the item */
-width: auto;
-margin: 0;               /* Grid gap controls spacing */
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer;
-}
-    
-.card:focus-visible {
-  outline: 3px solid #cdff79;
-  outline-offset: 2px;
-}
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
-    }
+      .card:focus-visible {
+        outline: 3px solid #cdff79;
+        outline-offset: 2px;
+      }
 
-    .card-image {
-      width: 100%;
-      height: 160px;
-      background-size: cover;
-      background-position: center;
-      background-color: #e5e7eb;
-    }
-
-.card-content {
-  padding: 14px 16px 16px;
-}
-
-    .card-title {
-      font-size: 1.2rem;
-      color: #2e3a1a;
-      font-weight: 600;
-      line-height: 1;
-      margin-bottom: 6px; 
-    }
-
-    .card-meta {
-      font-size: 0.8rem;
-      color: #6b7280;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 6px; 
-    }
-
-    .card-description {
-      font-size: 0.85rem;
-      color: #4b5563;
-      flex: 1;
-      margin-bottom: 10px; 
-    }
-
-    .card-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 6px;
-    }
-
-    .card-tag {
-      font-size: 0.7rem;
-      background: #cdff79;
-      color: #2e3a1a;
-      padding: 3px 8px;
-      border-radius: 999px;
-    }
-
-.card-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.card-readmore {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-right: 6px; 
-  text-decoration: none;
-  color: #2e3a1a;
-  white-space: nowrap; /* prevents wrap */
-}
-
-.card-readmore:hover {
-  text-decoration: underline;
-}
-
-    .status {
-      margin: 10px 0 5px;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
-      color: #2e3a1a;
-    }
-
-    .status.error {
-      color: #b91c1c;
-    }
-
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.5rem;
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
       }
 
       .card-image {
-        height: 140px;
+        width: 100%;
+        height: 160px;
+        background-size: cover;
+        background-position: center;
+        background-color: #e5e7eb;
       }
-    }
-  </style>
-</head>
-<body>
-  <div class="page">
-    <header>
-      <h1 id="feedTitle">DUO-Onderwijs Nieuwsfeed</h1>
-      <p id="feedDescription">Nieuws uit het onderwijs, automatisch verzameld.</p>
-    </header>
 
-    <!-- Filters -->
-    <div class="filters">
-      <label>
-        Zoeken:
-        <input type="text" id="searchInput" placeholder="Filter op titel, tekst of bron…" />
-      </label>
-      <div class="multi-select" id="sourceFilter">
-        <span class="multi-label">Bronnen:</span>
-      
-        <button type="button" class="multi-trigger" id="sourceTrigger" aria-haspopup="listbox" aria-expanded="false">
-          <span id="sourceTriggerText">Alle bronnen</span>
-          <span class="chev">▾</span>
-        </button>
-      
-        <div class="multi-panel" id="sourcePanel" role="listbox" aria-multiselectable="true" hidden>
-          <div class="multi-actions">
-            <button type="button" class="mini" id="sourceSelectAll">Alles</button>
-            <button type="button" class="mini" id="sourceClear">Geen</button>
-          </div>
-      
-          <div class="multi-options" id="sourceOptions">
-            <!-- checkboxes injected here -->
+      .card-content {
+        padding: 14px 16px 16px;
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        color: #2e3a1a;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+
+      .card-meta {
+        font-size: 0.8rem;
+        color: #6b7280;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+      }
+
+      .card-description {
+        font-size: 0.85rem;
+        color: #4b5563;
+        flex: 1;
+        margin-bottom: 10px;
+      }
+
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .card-tag {
+        font-size: 0.7rem;
+        background: #cdff79;
+        color: #2e3a1a;
+        padding: 3px 8px;
+        border-radius: 999px;
+      }
+
+      .card-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .card-readmore {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-right: 6px;
+        text-decoration: none;
+        color: #2e3a1a;
+        white-space: nowrap; /* prevents wrap */
+      }
+
+      .card-readmore:hover {
+        text-decoration: underline;
+      }
+
+      /* ==========================================================================
+         Status
+         ========================================================================== */
+      .status {
+        margin: 10px 0 5px;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        color: #2e3a1a;
+      }
+
+      .status.error {
+        color: #b91c1c;
+      }
+
+      @media (max-width: 600px) {
+        header h1 {
+          font-size: 1.5rem;
+        }
+
+        .card-image {
+          height: 140px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page">
+      <header>
+        <h1 id="feedTitle">DUO-Onderwijs Nieuwsfeed</h1>
+        <p id="feedDescription">Nieuws uit het onderwijs, automatisch verzameld.</p>
+      </header>
+
+      <!-- Filters -->
+      <div class="filters">
+        <label>
+          Zoeken:
+          <input type="text" id="searchInput" placeholder="Filter op titel, tekst of bron…" />
+        </label>
+
+        <div class="multi-select" id="sourceFilter">
+          <span class="multi-label">Bronnen:</span>
+
+          <button
+            type="button"
+            class="multi-trigger"
+            id="sourceTrigger"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+          >
+            <span id="sourceTriggerText">Alle bronnen</span>
+            <span class="chev">▾</span>
+          </button>
+
+          <div class="multi-panel" id="sourcePanel" role="listbox" aria-multiselectable="true" hidden>
+            <div class="multi-actions">
+              <button type="button" class="mini" id="sourceSelectAll">Alles</button>
+              <button type="button" class="mini" id="sourceClear">Geen</button>
+            </div>
+
+            <div class="multi-options" id="sourceOptions">
+              <!-- checkboxes injected here -->
+            </div>
           </div>
         </div>
       </div>
+
+      <div id="status" class="status">Artikelen worden geladen…</div>
+
+      <!-- Magazine grid -->
+      <div id="grid" class="grid"></div>
     </div>
 
-    <div id="status" class="status">Artikelen worden geladen…</div>
+    <script>
+      // JSON Feed URLs for this magazine
+      const FEED_URLS = [
+        "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json",
+        "https://rss.app/feeds/v1.1/_iccmMsqOiAvSwuxw.json",
+        "https://rss.app/feeds/v1.1/_jP0bIK60FpRheHgg.json",
+        "https://rss.app/feeds/v1.1/_o8AeNmBacN6b9Fg5.json",
+      ];
 
-    <!-- Magazine grid -->
-    <div id="grid" class="grid"></div>
-  </div>
+      // Change this number to allow more/less articles per host
+      const MAX_PER_HOST = 999;
 
-  <script>
-    // JSON Feed URL for this magazine
-    const FEED_URLS = [
-      "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json",
-      "https://rss.app/feeds/v1.1/_iccmMsqOiAvSwuxw.json",
-      "https://rss.app/feeds/v1.1/_jP0bIK60FpRheHgg.json",
-      "https://rss.app/feeds/v1.1/_o8AeNmBacN6b9Fg5.json",
-    ];
-    const MAX_PER_HOST = 999; // change this number to allow more/less articles per host
+      const BLOCKED_HOSTS = new Set([
+        "nl.linkedin.com",
+        "linkedin.com",
+        "www.linkedin.com",
+        "facebook.com",
+        "www.facebook.com",
+        "m.facebook.com",
+        "l.facebook.com",
+        "fb.com",
+        "www.fb.com",
+      ]);
 
-    const BLOCKED_HOSTS = new Set([
-      "nl.linkedin.com",
-      "linkedin.com",
-      "www.linkedin.com",
-      "facebook.com",
-      "www.facebook.com",
-      "m.facebook.com",
-      "l.facebook.com",
-      "fb.com",
-      "www.fb.com"
-    ]);
-    
-    let allArticles = [];
-    let activeTags = new Set();
-    let searchQuery = "";
-    
-    document.addEventListener("DOMContentLoaded", () => {
-      fetchFeed();
-      setupSearch();
-    });
-
-    async function fetchFeed() {
-  const statusEl = document.getElementById("status");
-
-  try {
-    statusEl.textContent = "Artikelen worden geladen…";
-
-    // Fetch all feeds in parallel (don’t fail everything if 1 feed fails)
-    const results = await Promise.allSettled(
-      FEED_URLS.map(async (url) => {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-        const data = await res.json();
-        return data.items || [];
-      })
-    );
-
-    // Combine all items from successful feeds
-    const combinedItems = results
-      .filter(r => r.status === "fulfilled")
-      .flatMap(r => r.value);
-
-    // Map into your normalized article format
-    allArticles = combinedItems.map(mapItemToArticle).filter(Boolean);
-    
-    // OPTIONAL: de-duplicate (by link)
-    const seen = new Set();
-    allArticles = allArticles.filter(a => {
-      if (!a.link || seen.has(a.link)) return false;
-      seen.add(a.link);
-      return true;
-    });
-
-    // OPTIONAL: sort newest first
-    allArticles.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
-
-    buildSourceDropdown(allArticles);
-    renderArticles();
-
-    const failedCount = results.filter(r => r.status === "rejected").length;
-    statusEl.textContent =
-      `Geladen: ${allArticles.length} artikelen.` +
-      (failedCount ? ` (${failedCount} feed(s) mislukt)` : "");
-    statusEl.classList.remove("error");
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Laden is mislukt. Zie console voor details.";
-    statusEl.classList.add("error");
-  }
-}
-
-function extractHostFromUrl(url) {
-  try {
-    const u = new URL(url);
-    return u.hostname.replace(/^www\./, "");
-  } catch (e) {
-    return "";
-  }
-}
-    
-function isBlockedUrl(url) {
-  const host = extractHostFromUrl(url);
-  return BLOCKED_HOSTS.has(host);
-}
-    
-// Map hostnames to nice, stable source labels
-function hostToSourceLabel(host) {
-  const map = {
-      "aob.nl": "AOb",
-      "avs.nl":"AVS",
-      "cito.nl": "Cito",
-      "cnv.nl":"CNV",
-      "didactiefonline.nl":"Didactief",
-      "dnmonline.nl":"De Nieuwe Meso",
-      "duo-onderwijs.nl":"DUO",
-      "expertisepuntburgerschap.nl":"Expertisecentrum Burgerschap",
-      "gespecialiseerdonderwijs.nl":"Sectorraad GO",
-      "gezondeschool.nl":"Gezonde School",
-      "kennisnet.nl": "Kennisnet",
-      "lezen.nl": "Stichting Lezen",
-      "nationaleonderwijsgids.nl":"Nationale Onderwijsgids",
-      "nji.nl":"NJi",
-      "noloc.nl":"NOLOC",
-      "nro.nl":"NRO",
-      "nieuwsbrievenminocw.nl": "OCW",
-      "ou.nl":"Open Universiteit",
-      "oudersenonderwijs.nl":"Ouders & Onderwijs",
-      "platformsamenopleiden.nl":"Platform Samen Opleiden",
-      "poraad.nl": "PO-Raad",
-      "schoolenveiligheid.nl":"School & Veiligheid",
-      "slo.nl": "SLO",
-      "steunpuntpassendonderwijs-povo.nl":"Steunpunt Passend Onderwijs",
-      "verus.nl":"Verus",
-      "vfpf.nl":"VfPf",
-      "vo-raad.nl": "VO-raad",
-      "voion.nl":"Voion",
-      "voo.nl":"VOO",  
-      "vorsite.nl": "VOR",
-      "vosabb.nl":"VOS/ABB",      
-    // you can add more later if needed
-  };
-  return map[host] || "";
-}
-
-// Provide a default image for each known source/host
-function fallbackImageForHost(host) {
-  const map = {
-    "aob.nl": "https://i.ytimg.com/vi/oRAxkBjuEkA/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AH-CYAC0AWKAgwIABABGCMgZSgYMA8=&rs=AOn4CLCBSJUW1ORaDc-EY3JpgpnUyrvnGw",
-    "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg",
-    "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
-    "cnv.nl":"https://www.sommbo.nl/wp-content/uploads/CNV-1.png",
-    "didactiefonline.nl":"https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
-    "dnmonline.nl":"https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
-    "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
-    "expertisepuntburgerschap.nl":"https://www.expertisepuntburgerschap.nl/wp-content/themes/stuurlui/assets/img/logo.svg",
-    "gespecialiseerdonderwijs.nl":"https://gespecialiseerdonderwijs.nl/wp-content/themes/gespecialiseerdonderwijs/build/img/sectorraad-go.b9b064d1.svg",
-    "gezondeschool.nl":"https://www.gezondeschool.nl/assets/img/logo.svg",
-    "kennisnet.nl": "https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
-    "lezen.nl": "https://www.noblestreet.eu/wp-content/uploads/2022/08/stichting-lezen.jpg",
-    "nationaleonderwijsgids.nl":"https://www.kieresoe.nl/wp-content/uploads/2018/12/nationale-onderwijsgids.png",
-    "nji.nl":"https://www.nji.nl/logo.svg",
-    "noloc.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6h1pz57hRhG7jzWPjSeaieXvOSMpque2YuQ&s",
-    "nieuwsbrievenminocw.nl":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png",
-    "nro.nl": "https://media.licdn.com/dms/image/v2/D4E22AQHg5yqWPpeI-A/feedshare-shrink_800/B4EZova_k6IoAk-/0/1761732197755?e=2147483647&v=beta&t=S6ODw3RPQxinfcZVEtenfUdkqML0Yy8aYNmPHxixV0k",
-    "ou.nl":"https://studiegids.nl/wp-content/themes/herald-child/images/open-universiteit.png",
-    "oudersenonderwijs.nl":"https://oudersenonderwijs.nl/wp-content/uploads/2020/05/logo-e1590324367608.png",
-    "platformsamenopleiden.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROSJ1XLlL5LnobLWsgT-pRz5wBXLDArlgb_Q&s",
-    "poraad.nl": "https://www.poraad.nl/logo.svg",
-    "schoolenveiligheid.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzkpAOfWlNha3LjxHEBOMW44HERCXi8yRWrw&s",
-    "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
-    "steunpuntpassendonderwijs-povo.nl":"https://www.steunpuntpassendonderwijs-povo.nl/wp-content/uploads/2021/06/new-logo.svg",
-    "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
-    "vfpf.nl":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
-    "vo-raad.nl": "https://cdn.sanity.io/images/mccftp3c/production/551a786ef3eeead61918fe982fd5e586140697fa-1500x855.jpg",
-    "voion.nl":"https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
-    "voo.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ552umSwbhMhYJSc3_0UaYfAti5RMJozh7eQ&s",
-    "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
-    "vosabb.nl":"https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
-  };
-  return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
-}
-
-    // Map this JSON Feed structure to a normalized article object
-    function mapItemToArticle(item) {
-  const title = item.title || "Untitled";
-  const link = item.url || "#";
-  if (link !== "#" && isBlockedUrl(link)) return null;
-  const description = item.content_text || "";
-  const pubDate = item.date_published || "";
-
-  // Full author string from the feed, still shown on the card
-  let author = "";
-  if (Array.isArray(item.authors) && item.authors.length > 0 && item.authors[0].name) {
-    author = item.authors[0].name;
-  }
-
-// Determine main image
-let image = "";
-if (item.image) {
-  image = item.image;
-} else if (Array.isArray(item.attachments) && item.attachments.length > 0 && item.attachments[0].url) {
-  image = item.attachments[0].url;
-} else {
-  // No image in the feed → use fallback based on host
-  const host = extractHostFromUrl(link);
-  image = fallbackImageForHost(host);
-}
-
-  // NEW: derive a stable source tag from the URL/domain
-  const host = extractHostFromUrl(link);
-  const sourceLabel = hostToSourceLabel(host) || host || author;
-
-  const categories = sourceLabel ? [sourceLabel] : [];
-
-      return {
-        title,
-        link,
-        description,
-        pubDate,
-        author,          // keep it if you might need it later
-        source: sourceLabel, // 👈 NEW: formatted source name
-        categories,
-        image,
-        host
+      // Force images for specific sources (by host)
+      const FORCE_IMAGE_FOR_HOST = {
+          "vfpf.nl": "https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
+          "voion.nl": "https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
+          "vosabb.nl": "https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
+        // add more hosts here if needed
       };
-    }
-          
+      
+      let allArticles = [];
+      let activeTags = new Set();
+      let searchQuery = "";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchFeed();
+        setupSearch();
+      });
+
+      async function fetchFeed() {
+        const statusEl = document.getElementById("status");
+
+        try {
+          statusEl.textContent = "Artikelen worden geladen…";
+
+          // Fetch all feeds in parallel (don’t fail everything if 1 feed fails)
+          const results = await Promise.allSettled(
+            FEED_URLS.map(async (url) => {
+              const res = await fetch(url);
+              if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+              const data = await res.json();
+              return data.items || [];
+            })
+          );
+
+          // Combine all items from successful feeds
+          const combinedItems = results
+            .filter((r) => r.status === "fulfilled")
+            .flatMap((r) => r.value);
+
+          // Map into your normalized article format
+          allArticles = combinedItems.map(mapItemToArticle).filter(Boolean);
+
+          // De-duplicate (by link)
+          const seen = new Set();
+          allArticles = allArticles.filter((a) => {
+            if (!a.link || seen.has(a.link)) return false;
+            seen.add(a.link);
+            return true;
+          });
+
+          // Sort newest first
+          allArticles.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+
+          buildSourceDropdown(allArticles);
+          renderArticles();
+
+          const failedCount = results.filter((r) => r.status === "rejected").length;
+          statusEl.textContent =
+            `Geladen: ${allArticles.length} artikelen.` + (failedCount ? ` (${failedCount} feed(s) mislukt)` : "");
+          statusEl.classList.remove("error");
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Laden is mislukt. Zie console voor details.";
+          statusEl.classList.add("error");
+        }
+      }
+
+      function extractHostFromUrl(url) {
+        try {
+          const u = new URL(url);
+          return u.hostname.replace(/^www\./, "");
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function isBlockedUrl(url) {
+        const host = extractHostFromUrl(url);
+        return BLOCKED_HOSTS.has(host);
+      }
+
+      // Map hostnames to nice, stable source labels
+      function hostToSourceLabel(host) {
+        const map = {
+          "aob.nl": "AOb",
+          "avs.nl": "AVS",
+          "cito.nl": "Cito",
+          "cnv.nl": "CNV",
+          "didactiefonline.nl": "Didactief",
+          "dnmonline.nl": "De Nieuwe Meso",
+          "duo-onderwijs.nl": "DUO",
+          "expertisepuntburgerschap.nl": "Expertisecentrum Burgerschap",
+          "gespecialiseerdonderwijs.nl": "Sectorraad GO",
+          "gezondeschool.nl": "Gezonde School",
+          "kennisnet.nl": "Kennisnet",
+          "lezen.nl": "Stichting Lezen",
+          "nationaleonderwijsgids.nl": "Nationale Onderwijsgids",
+          "nji.nl": "NJi",
+          "noloc.nl": "NOLOC",
+          "nro.nl": "NRO",
+          "nieuwsbrievenminocw.nl": "OCW",
+          "ou.nl": "Open Universiteit",
+          "oudersenonderwijs.nl": "Ouders & Onderwijs",
+          "platformsamenopleiden.nl": "Platform Samen Opleiden",
+          "poraad.nl": "PO-Raad",
+          "schoolenveiligheid.nl": "School & Veiligheid",
+          "slo.nl": "SLO",
+          "steunpuntpassendonderwijs-povo.nl": "Steunpunt Passend Onderwijs",
+          "verus.nl": "Verus",
+          "vfpf.nl": "VfPf",
+          "vo-raad.nl": "VO-raad",
+          "voion.nl": "Voion",
+          "voo.nl": "VOO",
+          "vorsite.nl": "VOR",
+          "vosabb.nl": "VOS/ABB",
+          // You can add more later if needed
+        };
+        return map[host] || "";
+      }
+
+      // Provide a default image for each known source/host
+      function fallbackImageForHost(host) {
+        const map = {
+          "aob.nl":
+            "https://i.ytimg.com/vi/oRAxkBjuEkA/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AH-CYAC0AWKAgwIABABGCMgZSgYMA8=&rs=AOn4CLCBSJUW1ORaDc-EY3JpgpnUyrvnGw",
+          "avs.nl": "https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg",
+          "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
+          "cnv.nl": "https://www.sommbo.nl/wp-content/uploads/CNV-1.png",
+          "didactiefonline.nl": "https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
+          "dnmonline.nl": "https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
+          "duo-onderwijs.nl": "https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
+          "expertisepuntburgerschap.nl":
+            "https://www.expertisepuntburgerschap.nl/wp-content/themes/stuurlui/assets/img/logo.svg",
+          "gespecialiseerdonderwijs.nl":
+            "https://gespecialiseerdonderwijs.nl/wp-content/themes/gespecialiseerdonderwijs/build/img/sectorraad-go.b9b064d1.svg",
+          "gezondeschool.nl": "https://www.gezondeschool.nl/assets/img/logo.svg",
+          "kennisnet.nl": "https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
+          "lezen.nl": "https://www.noblestreet.eu/wp-content/uploads/2022/08/stichting-lezen.jpg",
+          "nationaleonderwijsgids.nl": "https://www.kieresoe.nl/wp-content/uploads/2018/12/nationale-onderwijsgids.png",
+          "nji.nl": "https://www.nji.nl/logo.svg",
+          "noloc.nl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6h1pz57hRhG7jzWPjSeaieXvOSMpque2YuQ&s",
+          "nieuwsbrievenminocw.nl":
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png",
+          "nro.nl":
+            "https://media.licdn.com/dms/image/v2/D4E22AQHg5yqWPpeI-A/feedshare-shrink_800/B4EZova_k6IoAk-/0/1761732197755?e=2147483647&v=beta&t=S6ODw3RPQxinfcZVEtenfUdkqML0Yy8aYNmPHxixV0k",
+          "ou.nl": "https://studiegids.nl/wp-content/themes/herald-child/images/open-universiteit.png",
+          "oudersenonderwijs.nl": "https://oudersenonderwijs.nl/wp-content/uploads/2020/05/logo-e1590324367608.png",
+          "platformsamenopleiden.nl":
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROSJ1XLlL5LnobLWsgT-pRz5wBXLDArlgb_Q&s",
+          "poraad.nl": "https://www.poraad.nl/logo.svg",
+          "schoolenveiligheid.nl":
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzkpAOfWlNha3LjxHEBOMW44HERCXi8yRWrw&s",
+          "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
+          "steunpuntpassendonderwijs-povo.nl":
+            "https://www.steunpuntpassendonderwijs-povo.nl/wp-content/uploads/2021/06/new-logo.svg",
+          "verus.nl": "https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
+          "vfpf.nl": "https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
+          "vo-raad.nl": "https://cdn.sanity.io/images/mccftp3c/production/551a786ef3eeead61918fe982fd5e586140697fa-1500x855.jpg",
+          "voion.nl": "https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
+          "voo.nl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ552umSwbhMhYJSc3_0UaYfAti5RMJozh7eQ&s",
+          "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
+          "vosabb.nl": "https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
+        };
+
+        return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
+      }
+
+      // Map this JSON Feed structure to a normalized article object
+      function mapItemToArticle(item) {
+        const title = item.title || "Untitled";
+        const link = item.url || "#";
+        if (link !== "#" && isBlockedUrl(link)) return null;
+
+        const description = item.content_text || "";
+        const pubDate = item.date_published || "";
+
+        // Full author string from the feed, still kept on the object
+        let author = "";
+        if (Array.isArray(item.authors) && item.authors.length > 0 && item.authors[0].name) {
+          author = item.authors[0].name;
+        }
+        
+        // Determine main image (forced per source if configured)
+        const host = extractHostFromUrl(link);
+        
+        let image = "";
+        if (FORCE_IMAGE_FOR_HOST[host]) {
+          // Always use forced image for this source
+          image = FORCE_IMAGE_FOR_HOST[host];
+        } else if (item.image) {
+          image = item.image;
+        } else if (
+          Array.isArray(item.attachments) &&
+          item.attachments.length > 0 &&
+          item.attachments[0].url
+        ) {
+          image = item.attachments[0].url;
+        } else {
+          image = fallbackImageForHost(host);
+        }
+
+        // Derive a stable source label from the URL/domain
+        const sourceLabel = hostToSourceLabel(host) || host || author;
+
+        const categories = sourceLabel ? [sourceLabel] : [];
+
+        return {
+          title,
+          link,
+          description,
+          pubDate,
+          author, // keep it if you might need it later
+          source: sourceLabel, // formatted source name
+          categories,
+          image,
+          host,
+        };
+      }
+
       function updateSourceTriggerText(allTags) {
         const textEl = document.getElementById("sourceTriggerText");
+
         if (activeTags.size === 0) {
           textEl.textContent = "Alle bronnen";
         } else if (activeTags.size === 1) {
@@ -565,247 +618,242 @@ if (item.image) {
           textEl.textContent = `${activeTags.size} bronnen geselecteerd`;
         }
       }
-      
+
       function buildSourceDropdown(articles) {
         const trigger = document.getElementById("sourceTrigger");
         const panel = document.getElementById("sourcePanel");
         const optionsEl = document.getElementById("sourceOptions");
         const btnAll = document.getElementById("sourceSelectAll");
         const btnNone = document.getElementById("sourceClear");
-      
+
         // Collect unique tags
         const tagSet = new Set();
-        articles.forEach(a => a.categories.forEach(t => t && tagSet.add(t.trim())));
+        articles.forEach((a) => a.categories.forEach((t) => t && tagSet.add(t.trim())));
         const allTags = Array.from(tagSet).sort();
-      
+
         // Build checkbox list
         optionsEl.innerHTML = "";
-        allTags.forEach(tag => {
+        allTags.forEach((tag) => {
           const row = document.createElement("label");
           row.className = "multi-option";
-      
+
           const cb = document.createElement("input");
           cb.type = "checkbox";
           cb.value = tag;
           cb.checked = activeTags.has(tag);
-      
+
           cb.addEventListener("change", () => {
             if (cb.checked) activeTags.add(tag);
             else activeTags.delete(tag);
-      
+
             updateSourceTriggerText(allTags);
             renderArticles();
           });
-      
+
           const txt = document.createElement("span");
           txt.textContent = tag;
-      
+
           row.appendChild(cb);
           row.appendChild(txt);
           optionsEl.appendChild(row);
         });
-      
+
         // Trigger open/close
         function openPanel() {
           panel.hidden = false;
           trigger.setAttribute("aria-expanded", "true");
         }
+
         function closePanel() {
           panel.hidden = true;
           trigger.setAttribute("aria-expanded", "false");
         }
+
         function togglePanel() {
           if (panel.hidden) openPanel();
           else closePanel();
         }
-      
+
         trigger.addEventListener("click", (e) => {
           e.stopPropagation();
           togglePanel();
         });
-      
+
         // Click outside closes
         document.addEventListener("click", () => closePanel());
-      
+
         // Prevent clicks inside panel from closing it
         panel.addEventListener("click", (e) => e.stopPropagation());
-      
+
         // Actions: All / None
         btnAll.addEventListener("click", () => {
           activeTags = new Set(allTags);
-          // update checkboxes
-          optionsEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+
+          // Update checkboxes
+          optionsEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = true));
+
           updateSourceTriggerText(allTags);
           renderArticles();
         });
-      
+
         btnNone.addEventListener("click", () => {
           activeTags.clear();
-          optionsEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+          optionsEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
+
           updateSourceTriggerText(allTags);
           renderArticles();
         });
-      
+
         updateSourceTriggerText(allTags);
       }
 
-
-    function setupSearch() {
-      const input = document.getElementById("searchInput");
-      input.addEventListener("input", (event) => {
-        searchQuery = event.target.value.toLowerCase();
-        renderArticles();
-      });
-    }
-
-function renderArticles() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-
-  // 1. Apply tag + text filters
-  const filtered = allArticles.filter(article => {
-    // Tag filter
-    if (activeTags.size > 0) {
-      const hasTag = article.categories.some(tag => activeTags.has(tag));
-      if (!hasTag) return false;
-    }
-
-    // Text search
-    if (searchQuery) {
-      const text = (
-        article.title +
-        " " +
-        article.description +
-        " " +
-        article.author
-      ).toLowerCase();
-      if (!text.includes(searchQuery)) return false;
-    }
-
-    return true;
-  });
-
-  // 2. Apply per-host limit
-  const hostCounts = {};
-  const limited = [];
-
-  filtered.forEach(article => {
-    const host = article.host || "unknown";
-    if (!hostCounts[host]) {
-      hostCounts[host] = 0;
-    }
-
-    if (hostCounts[host] < MAX_PER_HOST) {
-      hostCounts[host]++;
-      limited.push(article);
-    }
-  });
-
-  // 3. Render only the limited list
-  limited.forEach(article => {
-    const card = createCard(article);
-    grid.appendChild(card);
-  });
-
-  // 4. Status text
-  const statusEl = document.getElementById("status");
-  if (limited.length === 0 && allArticles.length > 0) {
-    statusEl.textContent = "Geen artikelen matchen deze filters.";
-  } else if (allArticles.length > 0) {
-    statusEl.textContent =
-      "Weergegeven: " + limited.length + " van " + allArticles.length + " artikelen.";
-    statusEl.classList.remove("error");
-  }
-}
-
-function createCard(article) {
-  const card = document.createElement("article");
-  card.className = "card";
-  
-  card.tabIndex = 0;
-  card.setAttribute("role", "link");
-
-  card.addEventListener("click", () => {
-    window.open(article.link, "_blank", "noopener,noreferrer");
-  });
-
-      if (article.image) {
-        const imgDiv = document.createElement("div");
-        imgDiv.className = "card-image";
-        imgDiv.style.backgroundImage = `url("${article.image}")`;
-        card.appendChild(imgDiv);
-      }
-
-      const content = document.createElement("div");
-      content.className = "card-content";
-
-      const titleEl = document.createElement("h2");
-      titleEl.className = "card-title";
-      titleEl.textContent = article.title;
-      content.appendChild(titleEl);
-
-      const meta = document.createElement("div");
-      meta.className = "card-meta";
-      if (article.pubDate) {
-        const dateObj = new Date(article.pubDate);
-        const dateSpan = document.createElement("span");
-        dateSpan.textContent = dateObj.toLocaleDateString(undefined, {
-          year: "numeric",
-          month: "short",
-          day: "numeric"
+      function setupSearch() {
+        const input = document.getElementById("searchInput");
+        input.addEventListener("input", (event) => {
+          searchQuery = event.target.value.toLowerCase();
+          renderArticles();
         });
-        meta.appendChild(dateSpan);
-      }
-      if (article.source) {
-        const sourceSpan = document.createElement("span");
-        sourceSpan.textContent = "· " + article.source;
-        meta.appendChild(sourceSpan);
-      }
-      content.appendChild(meta);
-
-      if (article.description) {
-        const desc = document.createElement("p");
-        desc.className = "card-description";
-        desc.textContent =
-          article.description.length > 220
-            ? article.description.slice(0, 220) + "…"
-            : article.description;
-        content.appendChild(desc);
       }
 
-// Bottom row: tags (left) + "Lees meer" (right)
-const bottomRow = document.createElement("div");
-bottomRow.className = "card-bottom";
+      function renderArticles() {
+        const grid = document.getElementById("grid");
+        grid.innerHTML = "";
 
-const tagsContainer = document.createElement("div");
-tagsContainer.className = "card-tags";
-article.categories.forEach(tag => {
-  const span = document.createElement("span");
-  span.className = "card-tag";
-  span.textContent = tag;
-  tagsContainer.appendChild(span);
-});
-bottomRow.appendChild(tagsContainer);
+        // 1. Apply tag + text filters
+        const filtered = allArticles.filter((article) => {
+          // Tag filter
+          if (activeTags.size > 0) {
+            const hasTag = article.categories.some((tag) => activeTags.has(tag));
+            if (!hasTag) return false;
+          }
 
-const readMore = document.createElement("a");
-readMore.className = "card-readmore";
-readMore.href = article.link;
-readMore.target = "_blank";
-readMore.rel = "noopener noreferrer";
-readMore.textContent = "Lees meer →";
-readMore.addEventListener("click", e => e.stopPropagation());
-bottomRow.appendChild(readMore);
+          // Text search
+          if (searchQuery) {
+            const text = (article.title + " " + article.description + " " + article.author).toLowerCase();
+            if (!text.includes(searchQuery)) return false;
+          }
 
-content.appendChild(bottomRow);
-card.appendChild(content);
+          return true;
+        });
 
-return card;
-    }
-  </script>
-</body>
+        // 2. Apply per-host limit
+        const hostCounts = {};
+        const limited = [];
+
+        filtered.forEach((article) => {
+          const host = article.host || "unknown";
+          if (!hostCounts[host]) hostCounts[host] = 0;
+
+          if (hostCounts[host] < MAX_PER_HOST) {
+            hostCounts[host]++;
+            limited.push(article);
+          }
+        });
+
+        // 3. Render only the limited list
+        limited.forEach((article) => {
+          const card = createCard(article);
+          grid.appendChild(card);
+        });
+
+        // 4. Status text
+        const statusEl = document.getElementById("status");
+        if (limited.length === 0 && allArticles.length > 0) {
+          statusEl.textContent = "Geen artikelen matchen deze filters.";
+        } else if (allArticles.length > 0) {
+          statusEl.textContent = "Weergegeven: " + limited.length + " van " + allArticles.length + " artikelen.";
+          statusEl.classList.remove("error");
+        }
+      }
+
+      function createCard(article) {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        card.tabIndex = 0;
+        card.setAttribute("role", "link");
+
+        card.addEventListener("click", () => {
+          window.open(article.link, "_blank", "noopener,noreferrer");
+        });
+
+        if (article.image) {
+          const imgDiv = document.createElement("div");
+          imgDiv.className = "card-image";
+          imgDiv.style.backgroundImage = `url("${article.image}")`;
+          card.appendChild(imgDiv);
+        }
+
+        const content = document.createElement("div");
+        content.className = "card-content";
+
+        const titleEl = document.createElement("h2");
+        titleEl.className = "card-title";
+        titleEl.textContent = article.title;
+        content.appendChild(titleEl);
+
+        const meta = document.createElement("div");
+        meta.className = "card-meta";
+
+        if (article.pubDate) {
+          const dateObj = new Date(article.pubDate);
+          const dateSpan = document.createElement("span");
+          dateSpan.textContent = dateObj.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+          meta.appendChild(dateSpan);
+        }
+
+        if (article.source) {
+          const sourceSpan = document.createElement("span");
+          sourceSpan.textContent = "· " + article.source;
+          meta.appendChild(sourceSpan);
+        }
+
+        content.appendChild(meta);
+
+        if (article.description) {
+          const desc = document.createElement("p");
+          desc.className = "card-description";
+          desc.textContent =
+            article.description.length > 220 ? article.description.slice(0, 220) + "…" : article.description;
+          content.appendChild(desc);
+        }
+
+        // Bottom row: tags (left) + "Lees meer" (right)
+        const bottomRow = document.createElement("div");
+        bottomRow.className = "card-bottom";
+
+        const tagsContainer = document.createElement("div");
+        tagsContainer.className = "card-tags";
+
+        article.categories.forEach((tag) => {
+          const span = document.createElement("span");
+          span.className = "card-tag";
+          span.textContent = tag;
+          tagsContainer.appendChild(span);
+        });
+
+        bottomRow.appendChild(tagsContainer);
+
+        const readMore = document.createElement("a");
+        readMore.className = "card-readmore";
+        readMore.href = article.link;
+        readMore.target = "_blank";
+        readMore.rel = "noopener noreferrer";
+        readMore.textContent = "Lees meer →";
+        readMore.addEventListener("click", (e) => e.stopPropagation());
+
+        bottomRow.appendChild(readMore);
+
+        content.appendChild(bottomRow);
+        card.appendChild(content);
+
+        return card;
+      }
+    </script>
+  </body>
 </html>
-
-
-
-
-
