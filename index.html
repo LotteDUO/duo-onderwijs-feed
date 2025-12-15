@@ -542,17 +542,18 @@ if (item.image) {
 
   const categories = sourceLabel ? [sourceLabel] : [];
 
-return {
-  title,
-  link,
-  description,
-  pubDate,
-  author,          // keep it if you might need it later
-  source: sourceLabel, // 👈 NEW: formatted source name
-  categories,
-  image,
-  host
-};
+      return {
+        title,
+        link,
+        description,
+        pubDate,
+        author,          // keep it if you might need it later
+        source: sourceLabel, // 👈 NEW: formatted source name
+        categories,
+        image,
+        host
+      };
+    }
           
       function updateSourceTriggerText(allTags) {
         const textEl = document.getElementById("sourceTriggerText");
@@ -803,6 +804,7 @@ return card;
   </script>
 </body>
 </html>
+
 
 
 
