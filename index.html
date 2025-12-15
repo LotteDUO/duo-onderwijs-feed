@@ -264,6 +264,18 @@ margin: 0;               /* Grid gap controls spacing */
     ];
     const MAX_PER_HOST = 6; // change this number to allow more/less articles per host
 
+    const BLOCKED_HOSTS = new Set([
+      "nl.linkedin.com",
+      "linkedin.com",
+      "www.linkedin.com",
+      "facebook.com",
+      "www.facebook.com",
+      "m.facebook.com",
+      "l.facebook.com",
+      "fb.com",
+      "www.fb.com"
+    ]);
+    
     let allArticles = [];
     let activeTags = new Set();
     let searchQuery = "";
@@ -349,7 +361,11 @@ function hostToSourceLabel(host) {
     "verus.nl":"Verus",
     "vfpf.nl":"VfPf",
     "nji.nl":"NJi",
-    "avs.nl":"AVS"
+    "avs.nl":"AVS",
+    "cnv.nl":"CNV",
+    "dnmonline.nl":"De Nieuwe Meso",
+    "didactiefonline.nl":"Didactief",
+    "expertisepuntburgerschap.nl":"Expertisecentrum Burgerschap",
     // you can add more later if needed
   };
   return map[host] || "";
@@ -371,8 +387,13 @@ function fallbackImageForHost(host) {
     "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
     "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
     "vfpf.nl":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
+    "https://www.vfpf.nl/static/share-image.png":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
     "nji.nl":"https://www.nji.nl/logo.svg",
     "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg"
+    "cnv.nl":"https://www.sommbo.nl/wp-content/uploads/CNV-1.png",
+    "dnmonline.nl":"https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
+    "didactiefonline.nl":"https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
+    "expertisepuntburgerschap.nl":"https://www.expertisepuntburgerschap.nl/wp-content/themes/stuurlui/assets/img/logo.svg",
   };
   return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
 }
@@ -616,6 +637,7 @@ return card;
   </script>
 </body>
 </html>
+
 
 
 
