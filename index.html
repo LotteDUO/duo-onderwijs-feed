@@ -63,24 +63,106 @@ header p {
       min-width: 220px;
       outline: none;
     }
-    
-    .filters select {
-      padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid #2e3a1a;
-      min-width: 220px;
-      background: white;
-    }
-    
-    .filters select:focus {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-    }
 
     .filters input[type="text"]:focus {
       border-color: #2e3a1a;
       box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
     }
+      
+          .multi-select {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .multi-label {
+        font-size: 0.9rem;
+        color: #2e3a1a;
+      }
+      
+      .multi-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 220px;
+        padding: 8px 12px;
+        border: 1px solid #2e3a1a;
+        border-radius: 999px;
+        background: white;
+        color: #2e3a1a;
+        cursor: pointer;
+      }
+      
+      .multi-trigger:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+      }
+      
+      .multi-trigger .chev {
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+      
+      .multi-panel {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        z-index: 50;
+        width: min(340px, 90vw);
+        max-height: 320px;
+        overflow: auto;
+        background: white;
+        border: 1px solid rgba(46, 58, 26, 0.35);
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        padding: 10px;
+      }
+      
+      .multi-actions {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      
+      .multi-actions .mini {
+        border: 1px solid #2e3a1a;
+        background: #cdff79;
+        color: #2e3a1a;
+        border-radius: 999px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      
+      .multi-options {
+        display: grid;
+        gap: 6px;
+      }
+      
+      .multi-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 8px;
+        border-radius: 10px;
+      }
+      
+      .multi-option:hover {
+        background: rgba(205, 255, 121, 0.25);
+      }
+      
+      .multi-option input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #2e3a1a;
+      }
+      
+      .multi-option span {
+        font-size: 0.9rem;
+        color: #2e3a1a;
+      }
 
     /* --- Magazine grid --- */
 .grid {
@@ -229,10 +311,25 @@ margin: 0;               /* Grid gap controls spacing */
         Zoeken:
         <input type="text" id="searchInput" placeholder="Filter op titel, tekst of bron…" />
       </label>
-      <label>
-        Bronnen:
-        <select id="sourceSelect" multiple size="1"></select>
-      </label>
+      <div class="multi-select" id="sourceFilter">
+        <span class="multi-label">Bronnen:</span>
+      
+        <button type="button" class="multi-trigger" id="sourceTrigger" aria-haspopup="listbox" aria-expanded="false">
+          <span id="sourceTriggerText">Alle bronnen</span>
+          <span class="chev">▾</span>
+        </button>
+      
+        <div class="multi-panel" id="sourcePanel" role="listbox" aria-multiselectable="true" hidden>
+          <div class="multi-actions">
+            <button type="button" class="mini" id="sourceSelectAll">Alles</button>
+            <button type="button" class="mini" id="sourceClear">Geen</button>
+          </div>
+      
+          <div class="multi-options" id="sourceOptions">
+            <!-- checkboxes injected here -->
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="status" class="status">Artikelen worden geladen…</div>
@@ -266,7 +363,7 @@ margin: 0;               /* Grid gap controls spacing */
     let allArticles = [];
     let activeTags = new Set();
     let searchQuery = "";
-
+    
     document.addEventListener("DOMContentLoaded", () => {
       fetchFeed();
       setupSearch();
@@ -307,7 +404,7 @@ margin: 0;               /* Grid gap controls spacing */
     // OPTIONAL: sort newest first
     allArticles.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
 
-    buildSourceSelect(allArticles);
+    buildSourceDropdown(allArticles);
     renderArticles();
 
     const failedCount = results.filter(r => r.status === "rejected").length;
@@ -455,40 +552,101 @@ if (item.image) {
     host         // used to limit number of posts per host
   };
 }
-    
-function buildSourceSelect(articles) {
-  const select = document.getElementById("sourceSelect");
-  select.innerHTML = "";
+          
+      function updateSourceTriggerText(allTags) {
+        const textEl = document.getElementById("sourceTriggerText");
+        if (activeTags.size === 0) {
+          textEl.textContent = "Alle bronnen";
+        } else if (activeTags.size === 1) {
+          textEl.textContent = [...activeTags][0];
+        } else {
+          textEl.textContent = `${activeTags.size} bronnen geselecteerd`;
+        }
+      }
+      
+      function buildSourceDropdown(articles) {
+        const trigger = document.getElementById("sourceTrigger");
+        const panel = document.getElementById("sourcePanel");
+        const optionsEl = document.getElementById("sourceOptions");
+        const btnAll = document.getElementById("sourceSelectAll");
+        const btnNone = document.getElementById("sourceClear");
+      
+        // Collect unique tags
+        const tagSet = new Set();
+        articles.forEach(a => a.categories.forEach(t => t && tagSet.add(t.trim())));
+        const allTags = Array.from(tagSet).sort();
+      
+        // Build checkbox list
+        optionsEl.innerHTML = "";
+        allTags.forEach(tag => {
+          const row = document.createElement("label");
+          row.className = "multi-option";
+      
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.value = tag;
+          cb.checked = activeTags.has(tag);
+      
+          cb.addEventListener("change", () => {
+            if (cb.checked) activeTags.add(tag);
+            else activeTags.delete(tag);
+      
+            updateSourceTriggerText(allTags);
+            renderArticles();
+          });
+      
+          const txt = document.createElement("span");
+          txt.textContent = tag;
+      
+          row.appendChild(cb);
+          row.appendChild(txt);
+          optionsEl.appendChild(row);
+        });
+      
+        // Trigger open/close
+        function openPanel() {
+          panel.hidden = false;
+          trigger.setAttribute("aria-expanded", "true");
+        }
+        function closePanel() {
+          panel.hidden = true;
+          trigger.setAttribute("aria-expanded", "false");
+        }
+        function togglePanel() {
+          if (panel.hidden) openPanel();
+          else closePanel();
+        }
+      
+        trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          togglePanel();
+        });
+      
+        // Click outside closes
+        document.addEventListener("click", () => closePanel());
+      
+        // Prevent clicks inside panel from closing it
+        panel.addEventListener("click", (e) => e.stopPropagation());
+      
+        // Actions: All / None
+        btnAll.addEventListener("click", () => {
+          activeTags = new Set(allTags);
+          // update checkboxes
+          optionsEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+          updateSourceTriggerText(allTags);
+          renderArticles();
+        });
+      
+        btnNone.addEventListener("click", () => {
+          activeTags.clear();
+          optionsEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+          updateSourceTriggerText(allTags);
+          renderArticles();
+        });
+      
+        updateSourceTriggerText(allTags);
+      }
 
-  const tagSet = new Set();
-  articles.forEach(article => {
-    article.categories.forEach(tag => {
-      if (tag && typeof tag === "string") tagSet.add(tag.trim());
-    });
-  });
-
-  const tags = Array.from(tagSet).sort();
-
-  // Placeholder option (not selectable)
-  const placeholder = document.createElement("option");
-  placeholder.textContent = "Selecteer bronnen…";
-  placeholder.disabled = true;
-  placeholder.hidden = true;
-  select.appendChild(placeholder);
-
-  tags.forEach(tag => {
-    const opt = document.createElement("option");
-    opt.value = tag;
-    opt.textContent = tag;
-    select.appendChild(opt);
-  });
-
-  // Change handler updates activeTags
-  select.addEventListener("change", () => {
-    activeTags = new Set(Array.from(select.selectedOptions).map(o => o.value));
-    renderArticles();
-  });
-}
 
     function setupSearch() {
       const input = document.getElementById("searchInput");
@@ -644,3 +802,4 @@ return card;
   </script>
 </body>
 </html>
+
