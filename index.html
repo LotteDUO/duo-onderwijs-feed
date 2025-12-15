@@ -125,8 +125,13 @@ display: block;          /* Grid will size the item */
 width: auto;
 margin: 0;               /* Grid gap controls spacing */
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
 }
-
+    
+.card:focus-visible {
+  outline: 3px solid #cdff79;
+  outline-offset: 2px;
+}
     .card:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
@@ -502,9 +507,13 @@ function renderArticles() {
   }
 }
 
-    function createCard(article) {
-      const card = document.createElement("article");
-      card.className = "card";
+function createCard(article) {
+  const card = document.createElement("article");
+  card.className = "card";
+
+  card.addEventListener("click", () => {
+    window.open(article.link, "_blank", "noopener,noreferrer");
+  });
 
       if (article.image) {
         const imgDiv = document.createElement("div");
@@ -570,6 +579,7 @@ readMore.href = article.link;
 readMore.target = "_blank";
 readMore.rel = "noopener noreferrer";
 readMore.textContent = "Lees meer →";
+readMore.addEventListener("click", e => e.stopPropagation());
 bottomRow.appendChild(readMore);
 
 content.appendChild(bottomRow);
@@ -580,6 +590,7 @@ return card;
   </script>
 </body>
 </html>
+
 
 
 
