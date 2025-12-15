@@ -208,10 +208,6 @@ margin: 0;               /* Grid gap controls spacing */
   text-decoration: underline;
 }
 
-    .card-footer a:hover {
-      text-decoration: underline;
-    }
-
     .status {
       margin: 10px 0 5px;
       font-size: 0.85rem;
@@ -260,7 +256,12 @@ margin: 0;               /* Grid gap controls spacing */
 
   <script>
     // JSON Feed URL for this magazine
-    const FEED_URL = "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json";
+    const FEED_URLS = [
+      "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json",
+      // add more JSON feed URLs here:
+      // "https://rss.app/feeds/v1.1/______.json",
+      // "https://example.com/feed.json",
+    ];
     const MAX_PER_HOST = 6; // change this number to allow more/less articles per host
 
     let allArticles = [];
@@ -273,31 +274,54 @@ margin: 0;               /* Grid gap controls spacing */
     });
 
     async function fetchFeed() {
-      const statusEl = document.getElementById("status");
+  const statusEl = document.getElementById("status");
 
-      try {
-        statusEl.textContent = "Artikelen worden geladen…";
+  try {
+    statusEl.textContent = "Artikelen worden geladen…";
 
-        const response = await fetch(FEED_URL);
-        if (!response.ok) {
-          throw new Error("HTTP error " + response.status);
-        }
+    // Fetch all feeds in parallel (don’t fail everything if 1 feed fails)
+    const results = await Promise.allSettled(
+      FEED_URLS.map(async (url) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+        const data = await res.json();
+        return data.items || [];
+      })
+    );
 
-        const data = await response.json();
+    // Combine all items from successful feeds
+    const combinedItems = results
+      .filter(r => r.status === "fulfilled")
+      .flatMap(r => r.value);
 
-        const items = data.items || [];
-        allArticles = items.map(mapItemToArticle);
+    // Map into your normalized article format
+    allArticles = combinedItems.map(mapItemToArticle);
 
-        buildTagButtons(allArticles);
-        renderArticles();
+    // OPTIONAL: de-duplicate (by link)
+    const seen = new Set();
+    allArticles = allArticles.filter(a => {
+      if (!a.link || seen.has(a.link)) return false;
+      seen.add(a.link);
+      return true;
+    });
 
-        statusEl.textContent = "Geladen: " + allArticles.length + " artikelen.";
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "Laden is mislukt. Zie console voor details.";
-        statusEl.classList.add("error");
-      }
-    }
+    // OPTIONAL: sort newest first
+    allArticles.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
+
+    buildTagButtons(allArticles);
+    renderArticles();
+
+    const failedCount = results.filter(r => r.status === "rejected").length;
+    statusEl.textContent =
+      `Geladen: ${allArticles.length} artikelen.` +
+      (failedCount ? ` (${failedCount} feed(s) mislukt)` : "");
+    statusEl.classList.remove("error");
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Laden is mislukt. Zie console voor details.";
+    statusEl.classList.add("error");
+  }
+}
 
 function extractHostFromUrl(url) {
   try {
@@ -347,7 +371,6 @@ function fallbackImageForHost(host) {
     "duo-onderwijs.nl":"https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
     "verus.nl":"https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
     "vfpf.nl":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
-    "Vervangings- & Participatiefonds":"https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
     "nji.nl":"https://www.nji.nl/logo.svg",
     "avs.nl":"https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg"
   };
@@ -510,6 +533,9 @@ function renderArticles() {
 function createCard(article) {
   const card = document.createElement("article");
   card.className = "card";
+  
+  card.tabIndex = 0;
+  card.setAttribute("role", "link");
 
   card.addEventListener("click", () => {
     window.open(article.link, "_blank", "noopener,noreferrer");
@@ -590,6 +616,7 @@ return card;
   </script>
 </body>
 </html>
+
 
 
 
