@@ -260,7 +260,7 @@ margin: 0;               /* Grid gap controls spacing */
       "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json",
       "https://rss.app/feeds/v1.1/_iccmMsqOiAvSwuxw.json",
       "https://rss.app/feeds/v1.1/_jP0bIK60FpRheHgg.json",
-      // "https://example.com/feed.json",
+      "https://rss.app/feeds/v1.1/_o8AeNmBacN6b9Fg5.json",
     ];
     const MAX_PER_HOST = 6; // change this number to allow more/less articles per host
 
@@ -375,6 +375,15 @@ function hostToSourceLabel(host) {
     "gezondeschool.nl":"Gezonde School",
     "kennisnet.nl":"Kennisnet",
     "nationaleonderwijsgids.nl":"Nationale Onderwijsgids",
+    "noloc.nl":"NOLOC",
+    "ou.nl":"Open Universiteit",
+    "oudersenonderwijs.nl":"Ouders & Onderwijs",
+    "schoolenveiligheid.nl":"School & Veiligheid",
+    "voion.nl":"Voion",
+    "voo.nl":"VOO",
+    "steunpuntpassendonderwijs-povo.nl":"Steunpunt Passend Onderwijs",
+    "platformsamenopleiden.nl":"Platform Samen Opleiden",
+    "vosabb.nl":"VOS/ABB",
     // you can add more later if needed
   };
   return map[host] || "";
@@ -406,6 +415,15 @@ function fallbackImageForHost(host) {
     "gezondeschool.nl":"https://www.gezondeschool.nl/assets/img/logo.svg",
     "kennisnet.nl":"https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
     "nationaleonderwijsgids.nl":"https://www.kieresoe.nl/wp-content/uploads/2018/12/nationale-onderwijsgids.png",
+    "noloc.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6h1pz57hRhG7jzWPjSeaieXvOSMpque2YuQ&s",
+    "ou.nl":"https://studiegids.nl/wp-content/themes/herald-child/images/open-universiteit.png",
+    "oudersenonderwijs.nl":"https://oudersenonderwijs.nl/wp-content/uploads/2020/05/logo-e1590324367608.png",
+    "schoolenveiligheid.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzkpAOfWlNha3LjxHEBOMW44HERCXi8yRWrw&s",
+    "voion.nl":"https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
+    "voo.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ552umSwbhMhYJSc3_0UaYfAti5RMJozh7eQ&s",
+    "steunpuntpassendonderwijs-povo.nl":"https://www.steunpuntpassendonderwijs-povo.nl/wp-content/uploads/2021/06/new-logo.svg",
+    "platformsamenopleiden.nl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROSJ1XLlL5LnobLWsgT-pRz5wBXLDArlgb_Q&s",
+    "vosabb.nl":"https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
   };
   return map[host] || "https://upload.wikimedia.org/wikipedia/commons/8/89/Graduation_cap_icon.svg"; // universal fallback
 }
@@ -650,4 +668,5 @@ return card;
   </script>
 </body>
 </html>
+
 
