@@ -81,12 +81,12 @@
          Presets
          ========================================================================== */
       .preset-bar {
-        display: flex;
+        display: inline-flex;
         flex-wrap: wrap;
         gap: 8px;
         align-items: center;
       }
-      
+
       .preset-btn {
         border: 1px solid #2e3a1a;
         background: white;
@@ -380,14 +380,13 @@
               <!-- checkboxes injected here -->
             </div>
           </div>
-        </div>
-      </div>
-
       <div class="preset-bar" id="presetBar">
         <button type="button" class="preset-btn" data-preset="arbeid">Arbeid, HR & Organisatie</button>
         <button type="button" class="preset-btn" data-preset="beleid">Beleid & Bestuur</button>
         <button type="button" class="preset-btn" data-preset="praktijk">Onderwijspraktijk</button>
         <button type="button" class="preset-btn" data-preset="onderzoek">Onderzoek & Kennis</button>
+      </div>
+        </div>
       </div>
 
       <div id="status" class="status">Artikelen worden geladen…</div>
