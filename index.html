@@ -78,6 +78,30 @@
       }
 
       /* ==========================================================================
+         Presets
+         ========================================================================== */
+      .preset-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      
+      .preset-btn {
+        border: 1px solid #2e3a1a;
+        background: white;
+        color: #2e3a1a;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      
+      .preset-btn.active {
+        background: #cdff79;
+      }
+
+      /* ==========================================================================
          Multi-select dropdown
          ========================================================================== */
       .multi-select {
@@ -359,6 +383,13 @@
         </div>
       </div>
 
+      <div class="preset-bar" id="presetBar">
+        <button type="button" class="preset-btn" data-preset="arbeid">Arbeid, HR & Organisatie</button>
+        <button type="button" class="preset-btn" data-preset="beleid">Beleid & Bestuur</button>
+        <button type="button" class="preset-btn" data-preset="praktijk">Onderwijspraktijk</button>
+        <button type="button" class="preset-btn" data-preset="onderzoek">Onderzoek & Kennis</button>
+      </div>
+
       <div id="status" class="status">Artikelen worden geladen…</div>
 
       <!-- Magazine grid -->
@@ -389,6 +420,49 @@
         "www.fb.com",
       ]);
 
+      // preset categories
+      const PRESETS_BY_HOST = {
+      arbeid: [
+        "duo-onderwijs.nl",
+        "aob.nl",
+        "cnv.nl",
+        "avs.nl",
+        "vfpf.nl",
+        "voion.nl",
+        "noloc.nl",
+        "platformsamenopleiden.nl",
+      ],
+      beleid: [
+        "voo.nl",
+        "nieuwsbrievenminocw.nl",
+        "poraad.nl",
+        "vo-raad.nl",
+        "vosabb.nl",
+        "verus.nl",
+        "gespecialiseerdonderwijs.nl",
+      ],
+      praktijk: [
+        "kennisnet.nl",
+        "didactiefonline.nl",
+        "dnmonline.nl",
+        "gezondeschool.nl",
+        "schoolenveiligheid.nl",
+        "expertisepuntburgerschap.nl",
+        "steunpuntpassendonderwijs-povo.nl",
+        "nationaleonderwijsgids.nl",
+        "oudersenonderwijs.nl",
+      ],
+      onderzoek: [
+        "cito.nl",
+        "slo.nl",
+        "nro.nl",
+        "nji.nl",
+        "lezen.nl",
+        "vorsite.nl",
+        "ou.nl",
+      ],
+    };
+      
       // Force images for specific sources (by host)
       const FORCE_IMAGE_FOR_HOST = {
           "vfpf.nl": "https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
@@ -404,6 +478,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         fetchFeed();
         setupSearch();
+        setupPresetButtons();
       });
 
       async function fetchFeed() {
@@ -508,6 +583,61 @@
         return map[host] || "";
       }
 
+      // preset helper functions
+      function getPresetLabels(presetKey) {
+        const hosts = PRESETS_BY_HOST[presetKey] || [];
+        return hosts
+          .map((h) => hostToSourceLabel(h) || h)
+          .filter(Boolean);
+      }
+      
+      function syncSourceCheckboxes() {
+        const optionsEl = document.getElementById("sourceOptions");
+        if (!optionsEl) return;
+      
+        optionsEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+          cb.checked = activeTags.has(cb.value);
+        });
+      }
+      
+      function updatePresetButtonStates() {
+        document.querySelectorAll(".preset-btn").forEach((btn) => {
+          const key = btn.dataset.preset;
+          const labels = getPresetLabels(key);
+          const allSelected =
+            labels.length > 0 && labels.every((l) => activeTags.has(l));
+      
+          btn.classList.toggle("active", allSelected);
+        });
+      }
+      
+      function setupPresetButtons() {
+        const bar = document.getElementById("presetBar");
+        if (!bar) return;
+      
+        bar.addEventListener("click", (e) => {
+          const btn = e.target.closest(".preset-btn");
+          if (!btn) return;
+      
+          const key = btn.dataset.preset;
+          const labels = getPresetLabels(key);
+          const allSelected =
+            labels.length > 0 && labels.every((l) => activeTags.has(l));
+      
+          if (allSelected) {
+            labels.forEach((l) => activeTags.delete(l));
+          } else {
+            labels.forEach((l) => activeTags.add(l));
+          }
+      
+          syncSourceCheckboxes();
+          updateSourceTriggerText([]);
+          renderArticles();
+          updatePresetButtonStates();
+        });
+      }
+
+      
       // Provide a default image for each known source/host
       function fallbackImageForHost(host) {
         const map = {
@@ -648,6 +778,7 @@
 
             updateSourceTriggerText(allTags);
             renderArticles();
+            updatePresetButtonStates();
           });
 
           const txt = document.createElement("span");
@@ -694,6 +825,7 @@
 
           updateSourceTriggerText(allTags);
           renderArticles();
+          updatePresetButtonStates();
         });
 
         btnNone.addEventListener("click", () => {
@@ -703,6 +835,7 @@
 
           updateSourceTriggerText(allTags);
           renderArticles();
+          updatePresetButtonStates();
         });
 
         updateSourceTriggerText(allTags);
@@ -857,4 +990,3 @@
     </script>
   </body>
 </html>
-
