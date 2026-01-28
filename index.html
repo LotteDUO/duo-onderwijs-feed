@@ -385,6 +385,7 @@
         <button type="button" class="preset-btn" data-preset="beleid">Beleid & Bestuur</button>
         <button type="button" class="preset-btn" data-preset="praktijk">Onderwijspraktijk</button>
         <button type="button" class="preset-btn" data-preset="onderzoek">Onderzoek & Kennis</button>
+        <button type="button" class="preset-btn" data-preset="expert">Experts</button>
       </div>
         </div>
       </div>
@@ -404,6 +405,7 @@
         "https://rss.app/feeds/v1.1/_o8AeNmBacN6b9Fg5.json",
         "https://rss.app/feeds/v1.1/_wW8fyjqDAWaqcUaB.json",
         "https://rss.app/feeds/v1.1/_gfaUnOz1zgx4Yn3Z.json",
+        "https://rss.app/feeds/v1.1/_t1qbjtChhi1kfdTk.json",
       ];
 
       // Change this number to allow more/less articles per host
@@ -474,6 +476,10 @@
         "vorsite.nl",
         "ou.nl",
         "nko.nl",
+      ],
+      expert: [
+        "pedrodebruyckere.blog",
+        "kirschnered.nl",
       ],
     };
       
@@ -606,6 +612,8 @@
           "nrc.nl":"NRC",
           "nieuws.nl":"Nieuws",
           "metronieuws.nl":"Metro",
+          "pedrodebruyckere.blog":"Pedro de Bruyckere",
+          "kirschnered.nl":"Paul Kirschner,
           // You can add more later if needed
         };
         return map[host] || "";
@@ -1022,6 +1030,7 @@
 
   </body>
 </html>
+
 
 
 
