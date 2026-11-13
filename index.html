@@ -1,1098 +1,2526 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Onderwijs – Nieuwsfeed</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Onderwijsnieuws | DUO-Onderwijs</title>
+  <style>
+    /* --------------------------- Design tokens --------------------------- */
+    :root {
+      --page: #f5f6f0;
+      --surface: #fff;
+      --ink: #233018;
+      --muted: #65705b;
+      --border: #dce3d3;
+      --olive: #2e3a1a;
+      --lime: #cdff79;
+      --soft-green: #edf5dd;
+      --warning-bg: #fff4dd;
+      --warning-ink: #79500d;
+      --error-bg: #fff0ef;
+      --error-ink: #ad3030;
+      --shadow: 0 5px 20px rgba(26, 36, 19, .055);
+      --radius: 16px;
+    }
 
-    <style>
-      /* ==========================================================================
-         Base / Reset
-         ========================================================================== */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid #719b27; outline-offset: 3px; }
+    [hidden] { display: none !important; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+    .icon { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+    .icon svg { display: block; width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #f4f4ed;
-        color: #1f2933;
-        padding: 20px;
-      }
+    .page { width: min(100% - 36px, 1280px); margin: 0 auto; padding: 22px 0 52px; }
 
-      .page {
-        max-width: 1300px;
-        margin: 0 auto;
-      }
+    /* ------------------------------ Header ------------------------------- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      border-radius: 20px;
+      background: var(--olive);
+      color: white;
+      padding: 20px 28px;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      box-shadow: 0 10px 28px rgba(27, 40, 15, .12);
+    }
+    .hero::before {
+      content: ""; position: absolute; z-index: -1;
+      width: 138px; height: 138px; top: -84px; right: 130px;
+      background: var(--lime); border-radius: 50%;
+    }
+    .hero::after {
+      content: ""; position: absolute; z-index: -1;
+      width: 98px; height: 98px; right: -47px; bottom: -49px;
+      background: #e9b6ee; transform: rotate(45deg);
+    }
+    .eyebrow { font-size: 11px; font-weight: 750; letter-spacing: .13em; color: #e0f5bc; text-transform: uppercase; }
+    .hero h1 { font-size: clamp(28px, 3vw, 39px); letter-spacing: -.035em; line-height: 1.14; color: var(--lime); margin: 4px 0 3px; }
+    .hero p { margin: 0; font-size: 14px; color: #f0f3e9; }
+    .hero-side { flex-shrink: 0; text-align: right; align-self: end; max-width: 330px; }
+    .hero-side span { display: block; color: #e8efda; font-size: 12px; }
+    .hero-side .last-check { font-weight: 700; color: white; }
 
-      /* ==========================================================================
-         Header
-         ========================================================================== */
-      header {
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        margin-bottom: 20px;
-        padding: 26px 26px;
-        border-radius: 20px;
-        background: #2e3a1a;
-        box-shadow: 0 14px 34px rgba(32, 43, 18, 0.16);
-      }
+    /* ------------------------------ Controls ----------------------------- */
+    .control-surface {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      margin-top: 17px; padding: 17px 19px 15px;
+    }
+    .control-top, .filter-row, .view-switch, .section-bar, .tab-row, .controls-right { display: flex; align-items: center; }
+    .control-top { gap: 12px; justify-content: space-between; }
+    .search-box { position: relative; min-width: 220px; max-width: 490px; flex: 1; }
+    .search-box > .icon { position: absolute; top: 50%; left: 13px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .search-box input {
+      display: block; width: 100%; height: 43px; border: 1px solid var(--border);
+      border-radius: 11px; background: #fbfcf8; color: var(--ink);
+      outline: none; padding: 0 42px 0 42px; font-size: 14px;
+    }
+    .search-box input:focus { border-color: #86a54e; box-shadow: 0 0 0 3px rgba(147, 189, 82, .16); }
+    .clear-search {
+      position: absolute; right: 5px; top: 5px; width: 32px; height: 33px;
+      border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-size: 23px; line-height: 1;
+    }
+    .clear-search:hover { background: var(--soft-green); color: var(--ink); }
+    .controls-right { gap: 9px; }
+    .view-switch { padding: 3px; background: #f1f4eb; border-radius: 11px; gap: 3px; }
+    .view-btn {
+      border: 0; border-radius: 8px; background: transparent; color: var(--muted);
+      padding: 8px 11px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px;
+      font-weight: 650;
+    }
+    .view-btn[aria-pressed="true"] { background: white; color: var(--olive); box-shadow: 0 1px 5px rgba(0,0,0,.08); }
+    .view-btn:hover { color: var(--ink); }
+    .filter-row { border-top: 1px solid #edf0e9; margin-top: 14px; padding-top: 14px; gap: 12px; justify-content: space-between; align-items: flex-start; }
+    .preset-wrap { display: flex; flex: 1; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .preset-btn, .secondary-btn {
+      border: 1px solid var(--border); border-radius: 999px; background: white;
+      color: var(--ink); padding: 7px 12px; font-size: 12.5px; line-height: 1.3; font-weight: 650;
+    }
+    .preset-btn:hover, .secondary-btn:hover { border-color: #9db47b; background: #f8fbea; }
+    .preset-btn[aria-pressed="true"] { border-color: #b9de79; background: var(--lime); }
+    .preset-btn[aria-pressed="mixed"] { border-color: #a1bb7c; background: #f0f6e3; }
+    .preset-btn:disabled { opacity: .45; cursor: not-allowed; }
 
-      header::before,
-      header::after {
-        content: "";
-        position: absolute;
-        z-index: -1;
-        pointer-events: none;
-      }
+    /* Native details + checkboxes, not a simulated ARIA listbox. */
+    .source-details { position: relative; flex: 0 0 auto; }
+    .source-details > summary {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      list-style: none; min-width: 148px; padding: 8px 12px;
+      border: 1px solid var(--border); background: #fbfcf8; border-radius: 11px;
+      cursor: pointer; color: var(--ink); font-size: 12.5px; font-weight: 650;
+    }
+    .source-details > summary::-webkit-details-marker { display: none; }
+    .source-details[open] > summary { border-color: #8fad64; background: var(--soft-green); }
+    .source-details[open] .chevron { transform: rotate(180deg); }
+    .chevron { font-size: 13px; transition: transform .15s ease; }
+    .source-popover {
+      position: absolute; top: calc(100% + 9px); right: 0; width: min(380px, calc(100vw - 38px));
+      background: white; border: 1px solid var(--border); border-radius: 14px;
+      box-shadow: 0 15px 38px rgba(35, 48, 24, .18); padding: 15px;
+      z-index: 20;
+    }
+    .source-popover-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 11px; }
+    .source-popover-head strong { font-size: 14px; }
+    .source-actions { display: flex; gap: 6px; }
+    .source-actions button { border: 0; background: var(--soft-green); color: var(--olive); border-radius: 8px; padding: 6px 8px; font-size: 11px; font-weight: 700; }
+    .source-actions button:hover { background: #dbeabf; }
+    .source-options { max-height: 340px; overflow-y: auto; overscroll-behavior: contain; }
+    .source-group-heading { margin: 13px 2px 5px; color: var(--muted); text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: .085em; }
+    .source-group-heading:first-child { margin-top: 0; }
+    .source-item { display: flex; align-items: center; gap: 10px; padding: 6px 7px; border-radius: 7px; cursor: pointer; font-size: 13px; }
+    .source-item:hover { background: #f2f7e9; }
+    .source-item input { flex: 0 0 auto; width: 16px; height: 16px; accent-color: var(--olive); }
+    .source-item-name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .source-item-count { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .source-help { margin: 12px 2px 0; font-size: 11px; color: var(--muted); }
 
-      header::before {
-        width: 120px;
-        height: 120px;
-        top: -58px;
-        right: 110px;
-        border-radius: 50%;
-        background: #cdff79;
-      }
+    /* ------------------------------ Sections ----------------------------- */
+    .section-bar { margin: 16px 2px 13px; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+    .tab-row { gap: 7px; }
+    .tab-btn {
+      border: 0; background: transparent; color: var(--muted); border-radius: 10px;
+      padding: 9px 13px; font-weight: 750; font-size: 15px;
+    }
+    .tab-btn[aria-pressed="true"] { background: #e4efcf; color: var(--olive); }
+    .tab-btn:hover { color: var(--olive); }
+    .tab-count { font-size: 12px; font-weight: 650; opacity: .8; margin-left: 2px; }
+    .section-actions { display: flex; align-items: center; gap: 13px; }
+    .result-count { font-size: 12px; color: var(--muted); }
+    .refresh-btn {
+      display: inline-flex; gap: 7px; align-items: center; border: 1px solid var(--border);
+      background: white; color: var(--olive); border-radius: 10px; padding: 8px 12px;
+      font-size: 12px; font-weight: 700;
+    }
+    .refresh-btn:hover { border-color: #9db47b; background: #f8fbea; }
+    .refresh-btn:disabled { opacity: .6; cursor: wait; }
+    .refresh-btn .icon svg { width: 15px; height: 15px; }
+    .notice { border-radius: 11px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px; background: #eaf1e2; color: var(--olive); }
+    .notice.warning { color: var(--warning-ink); background: var(--warning-bg); }
+    .notice.error { color: var(--error-ink); background: var(--error-bg); }
 
-      header::after {
-        width: 105px;
-        height: 105px;
-        right: -48px;
-        bottom: -52px;
-        transform: rotate(45deg);
-        background: #edaffc;
-      }
+    /* ----------------------------- Article cards ------------------------- */
+    .articles.view-magazine { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+    .article-card {
+      position: relative; min-width: 0; background: white; border: 1px solid #e6ebe0;
+      border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .article-card:hover { transform: translateY(-2px); box-shadow: 0 10px 27px rgba(27, 40, 15, .1); }
+    .card-link { display: flex; flex-direction: column; height: 100%; color: inherit; text-decoration: none; }
+    .card-link:focus-visible { outline: 3px solid #719b27; outline-offset: -4px; }
+    .card-media { position: relative; height: 158px; background: linear-gradient(135deg, #e9efd9, #d8e2cb); overflow: hidden; display: grid; place-items: center; }
+    .media-fallback { padding: 12px 20px; max-width: 80%; color: #61704e; text-align: center; font-size: 20px; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+    .card-media img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+    .card-media.has-image .media-fallback { visibility: hidden; }
+    .card-body { display: flex; flex: 1; flex-direction: column; gap: 7px; padding: 16px 17px 18px; }
+    .card-meta { display: flex; flex-wrap: wrap; gap: 5px 7px; color: var(--muted); font-size: 12px; }
+    .card-meta .source-name { color: #4c6635; font-weight: 750; }
+    .card-title { margin: 0; font-size: 17px; line-height: 1.31; letter-spacing: -.014em; font-weight: 750; color: var(--ink); overflow-wrap: anywhere; }
+    .card-link:hover .card-title { text-decoration: underline; text-decoration-color: #8aaf54; text-underline-offset: 3px; }
+    .card-description { margin: 0; color: #586353; font-size: 13px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+    .card-readmore { color: var(--olive); font-size: 12px; font-weight: 800; margin-top: auto; padding-top: 4px; }
+    .bookmark-btn {
+      position: absolute; top: 11px; right: 11px; z-index: 2; display: flex; align-items: center;
+      justify-content: center; gap: 5px; height: 36px; min-width: 36px; padding: 0 9px;
+      border: 1px solid rgba(46, 58, 26, .12); border-radius: 10px;
+      background: rgba(255, 255, 255, .96); color: var(--olive);
+      box-shadow: 0 2px 10px rgba(25, 30, 17, .1);
+      font-size: 12px; font-weight: 700;
+    }
+    .bookmark-btn:hover { background: var(--lime); }
+    .bookmark-btn[aria-pressed="true"] { background: var(--lime); }
+    .bookmark-btn[aria-pressed="true"] svg { fill: currentColor; }
+    .bookmark-btn .icon svg { width: 17px; height: 17px; }
+    .bookmark-label { display: none; }
 
-      header h1 {
-        position: relative;
-        z-index: 1;
-        max-width: 820px;
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1.05;
-        color: #cdff79;
-        letter-spacing: -0.5px;
-        margin-bottom: 0.5rem;
-      }
+    /* Compact mode: headline-oriented, no image downloads. */
+    .articles.view-compact { display: grid; grid-template-columns: 1fr; gap: 7px; }
+    .view-compact .article-card { min-height: 87px; box-shadow: none; }
+    .view-compact .article-card:hover { transform: none; border-color: #bad69e; box-shadow: 0 3px 10px rgba(27, 40, 15, .06); }
+    .view-compact .card-link { padding-right: 60px; }
+    .view-compact .card-media, .view-compact .card-description, .view-compact .card-readmore { display: none; }
+    .view-compact .card-body { gap: 5px; padding: 14px 19px; }
+    .view-compact .card-title { font-size: 15px; line-height: 1.35; }
+    .view-compact .bookmark-btn { top: 50%; transform: translateY(-50%); }
 
-      header p {
-        position: relative;
-        z-index: 1;
-        max-width: 650px;
-        font-size: 1.1rem;
-        line-height: 1.45;
-        color: #ffffff;
-        margin-bottom: 0;
-      }
+    .empty-state { background: white; border: 1px dashed #c7d4b8; border-radius: var(--radius); padding: 44px 20px; text-align: center; color: var(--muted); }
+    .empty-state h3 { color: var(--ink); margin: 0 0 5px; font-size: 18px; }
+    .empty-state p { margin: 0 auto 16px; max-width: 490px; font-size: 14px; }
+    .empty-state button { background: var(--lime); border: 0; border-radius: 10px; color: var(--olive); font-size: 13px; font-weight: 800; padding: 10px 14px; }
+    .empty-state button:hover { filter: brightness(.96); }
+    .footer { margin-top: 29px; color: #708067; font-size: 12px; text-align: center; }
+    .toast { position: fixed; z-index: 100; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--olive); color: #fff; padding: 10px 17px; border-radius: 11px; font-size: 13px; box-shadow: 0 8px 30px rgba(0,0,0,.16); max-width: min(94vw, 460px); text-align: center; }
 
-      /* ==========================================================================
-         Filters
-         ========================================================================== */
-      .filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin: 15px 0;
-        align-items: center;
-      }
+    @media (max-width: 1060px) {
+      .articles.view-magazine { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 690px) {
+      .page { width: min(100% - 24px, 1280px); padding-top: 12px; }
+      .hero { padding: 18px; border-radius: 16px; min-height: 0; align-items: flex-start; flex-direction: column; gap: 10px; }
+      .hero::before { right: 30px; }
+      .hero-side { text-align: left; align-self: flex-start; }
+      .control-surface { padding: 13px; }
+      .control-top { align-items: stretch; flex-wrap: wrap; }
+      .search-box { flex-basis: 100%; max-width: none; }
+      .controls-right { width: 100%; justify-content: space-between; }
+      .filter-row { flex-wrap: wrap; }
+      .preset-wrap { flex-basis: 100%; }
+      .source-details { margin-left: auto; }
+      .section-bar { align-items: flex-start; }
+      .section-actions { width: 100%; justify-content: space-between; }
+      .articles.view-magazine { grid-template-columns: 1fr; }
+      .card-media { height: 170px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
 
-      .filters label {
-        font-size: 0.9rem;
-        color: #2e3a1a;
-      }
+    .filter-diagnostics { margin-top: 24px; padding: 15px 18px; border: 1px solid var(--border); border-radius: 13px; background: white; font-size: 12px; }
+    .filter-diagnostics summary { cursor: pointer; color: var(--olive); font-weight: 700; }
+    .filter-diagnostics h3 { margin: 18px 0 8px; font-size: 13px; }
+    .diag-table { border-collapse: collapse; width: 100%; margin-top: 14px; font-size: 11px; }
+    .diag-table td, .diag-table th { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; overflow-wrap: anywhere; }
+    .diag-table th { background: var(--soft-green); }
+    .diag-failed { color: var(--error-ink); }
+    .filter-diagnostics .source-help { margin-top: 12px; line-height: 1.5; }
+    @media(max-width: 700px) { .filter-diagnostics { overflow-x: auto; } .diag-table { min-width: 630px; } }
 
-      .filters input[type="text"] {
-        padding: 8px 10px;
-        border-radius: 999px;
-        border: 1px solid #2e3a1a;
-        min-width: 220px;
-        outline: none;
-      }
 
-      .filters input[type="text"]:focus {
-        border-color: #2e3a1a;
-        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-      }
-
-      /* ==========================================================================
-         Presets
-         ========================================================================== */
-      .preset-bar {
-        display: inline-flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .preset-btn {
-        border: 1px solid #2e3a1a;
-        background: white;
-        color: #2e3a1a;
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 0.85rem;
-        cursor: pointer;
-      }
-      
-      .preset-btn.active {
-        background: #cdff79;
-      }
-
-      /* ==========================================================================
-         Multi-select dropdown
-         ========================================================================== */
-      .multi-select {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .multi-label {
-        font-size: 0.9rem;
-        color: #2e3a1a;
-      }
-
-      .multi-trigger {
-        display: inline-flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        min-width: 220px;
-        padding: 8px 12px;
-        border: 1px solid #2e3a1a;
-        border-radius: 999px;
-        background: white;
-        color: #2e3a1a;
-        cursor: pointer;
-      }
-
-      .multi-trigger:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
-      }
-
-      .multi-trigger .chev {
-        font-size: 0.9rem;
-        opacity: 0.8;
-      }
-
-      .multi-panel {
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        z-index: 50;
-        width: min(340px, 90vw);
-        max-height: 320px;
-        overflow: auto;
-        background: white;
-        border: 1px solid rgba(46, 58, 26, 0.35);
-        border-radius: 16px;
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-        padding: 10px;
-      }
-
-      .multi-actions {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 10px;
-      }
-
-      .multi-actions .mini {
-        border: 1px solid #2e3a1a;
-        background: #cdff79;
-        color: #2e3a1a;
-        border-radius: 999px;
-        padding: 5px 10px;
-        font-size: 0.8rem;
-        cursor: pointer;
-      }
-
-      .multi-options {
+    /* ================================================================
+       One-line desktop toolbar (original mobile layout retained)
+       Visual order: search | categories | sources | magazine/compact.
+       Desktop only; native mobile layout stays readable.
+       ================================================================ */
+    @media (min-width: 901px) {
+      .control-surface {
         display: grid;
-        gap: 6px;
-      }
-
-      .multi-option {
-        display: flex;
+        grid-template-columns: minmax(160px, 180px) minmax(0, 1fr) auto auto;
         align-items: center;
-        gap: 10px;
-        padding: 6px 8px;
-        border-radius: 10px;
+        column-gap: 12px;
+        margin-top: 12px;
+        padding: 10px 12px;
       }
-
-      .multi-option:hover {
-        background: rgba(205, 255, 121, 0.25);
-      }
-
-      .multi-option input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #2e3a1a;
-      }
-
-      .multi-option span {
-        font-size: 0.9rem;
-        color: #2e3a1a;
-      }
-
-      /* ==========================================================================
-         Magazine grid
-         ========================================================================== */
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
-      }
-
-      @media (max-width: 900px) {
-        .grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
-
-      @media (max-width: 600px) {
-        .grid {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* ==========================================================================
-         Cards
-         ========================================================================== */
-      .card {
-        background: white;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-        display: block; /* Grid will size the item */
-        width: auto;
-        margin: 0; /* Grid gap controls spacing */
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-        cursor: pointer;
-      }
-
-      .card:focus-visible {
-        outline: 3px solid #cdff79;
-        outline-offset: 2px;
-      }
-
-      .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
-      }
-
-      .card-image {
+      /* Let the existing controls occupy grid cells without changing JS. */
+      .control-top, .filter-row, .controls-right { display: contents; }
+      /* Explicit row placement prevents DOM order from making a second row. */
+      .search-box, .preset-wrap, .source-details, .view-switch { grid-row: 1; }
+      .search-box {
+        grid-column: 1;
+        min-width: 0;
+        max-width: none;
         width: 100%;
-        height: 160px;
-        background-size: cover;
-        background-position: center;
-        background-color: #e5e7eb;
+        flex: none;
       }
-
-      .card-content {
-        padding: 14px 16px 16px;
+      .search-box input {
+        height: 36px;
+        border-radius: 9px;
+        padding: 0 29px 0 32px;
+        font-size: 12px;
       }
-
-      .card-title {
-        font-size: 1.2rem;
-        color: #2e3a1a;
-        font-weight: 600;
-        line-height: 1;
-        margin-bottom: 6px;
+      .search-box > .icon { left: 9px; }
+      .search-box > .icon svg { width: 15px; height: 15px; }
+      .clear-search { width: 28px; height: 28px; top: 4px; right: 3px; font-size: 20px; }
+      .preset-wrap {
+        grid-column: 2;
+        min-width: 0;
+        flex: none;
+        flex-wrap: nowrap;
+        gap: 4px;
       }
-
-      .card-meta {
-        font-size: 0.8rem;
-        color: #6b7280;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 6px;
+      .preset-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 7px 8px;
+        font-size: 11px;
+        line-height: 1.3;
       }
-
-      .card-description {
-        font-size: 0.85rem;
-        color: #4b5563;
-        flex: 1;
-        margin-bottom: 10px;
+      .source-details { grid-column: 3; margin: 0; min-width: 0; }
+      .source-details > summary {
+        min-width: 105px;
+        padding: 7px 9px;
+        border-radius: 9px;
+        font-size: 11px;
+        white-space: nowrap;
       }
+      .view-switch { grid-column: 4; gap: 2px; padding: 2px; justify-self: end; }
+      .view-btn { padding: 7px 7px; font-size: 11px; gap: 4px; }
+      .view-btn .icon svg { width: 15px; height: 15px; }
+    }
+    @media (min-width: 901px) and (max-width: 1060px) {
+      .control-surface { grid-template-columns: minmax(100px, 117px) minmax(0, 1fr) auto auto; gap: 5px; padding: 9px 10px; }
+      .preset-wrap { gap: 3px; }
+      .preset-btn { padding-inline: 6px; font-size: 10.5px; }
+      .source-details > summary { min-width: 95px; padding-inline: 7px; }
+      .view-btn { padding-inline: 5px; font-size: 10.5px; }
+    }
+    @media (max-width: 900px) {
+      /* Two rows only where a single row would compromise readability. */
+      .control-surface { margin-top: 12px; padding: 12px; }
+      .preset-wrap { gap: 5px; }
+      .preset-btn { padding: 7px 10px; }
+    }
 
-      .card-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 6px;
-      }
-
-      .card-tag {
-        font-size: 0.7rem;
-        background: #cdff79;
-        color: #2e3a1a;
-        padding: 3px 8px;
-        border-radius: 999px;
-      }
-
-      .card-bottom {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-      }
-
-      .card-readmore {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-right: 6px;
-        text-decoration: none;
-        color: #2e3a1a;
-        white-space: nowrap; /* prevents wrap */
-      }
-
-      .card-readmore:hover {
-        text-decoration: underline;
-      }
-
-      /* ==========================================================================
-         Status
-         ========================================================================== */
-      .status {
-        margin: 10px 0 5px;
-        font-size: 0.85rem;
-        margin-bottom: 8px;
-        color: #2e3a1a;
-      }
-
-      .status.error {
-        color: #b91c1c;
-      }
-
-      @media (max-width: 600px) {
-        header {
-          padding: 20px;
-          border-radius: 16px;
-        }
-
-        header::before {
-          width: 90px;
-          height: 90px;
-          top: -45px;
-          right: 50px;
-        }
-
-        header::after {
-          width: 80px;
-          height: 80px;
-          right: -38px;
-          bottom: -40px;
-        }
-
-        header h1 {
-          font-size: 1.8rem;
-        }
-
-        header p {
-          font-size: 1rem;
-        }
-
-        .card-image {
-          height: 140px;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page">
-      <header>
-        <h1 id="feedTitle">DUO-Onderwijs Nieuws</h1>
-        <p id="feedDescription">Berichten uit het onderwijs, automatisch verzameld.</p>
-      </header>
-
-      <!-- Filters -->
-      <div class="filters">
-        <label>
-          Zoeken:
-          <input type="text" id="searchInput" placeholder="Filter op titel, tekst of bron…" />
-        </label>
-
-        <div class="multi-select" id="sourceFilter">
-          <span class="multi-label">Bronnen:</span>
-
-          <button
-            type="button"
-            class="multi-trigger"
-            id="sourceTrigger"
-            aria-haspopup="listbox"
-            aria-expanded="false"
-          >
-            <span id="sourceTriggerText">Alle bronnen</span>
-            <span class="chev">▾</span>
-          </button>
-
-          <div class="multi-panel" id="sourcePanel" role="listbox" aria-multiselectable="true" hidden>
-            <div class="multi-actions">
-              <button type="button" class="mini" id="sourceSelectAll">Alles</button>
-              <button type="button" class="mini" id="sourceClear">Geen</button>
-            </div>
-
-            <div class="multi-options" id="sourceOptions">
-              <!-- checkboxes injected here -->
-            </div>
-          </div>
-      <div class="preset-bar" id="presetBar">
-        <button type="button" class="preset-btn" data-preset="arbeid">Arbeid, HR & Organisatie</button>
-        <button type="button" class="preset-btn" data-preset="beleid">Beleid & Bestuur</button>
-        <button type="button" class="preset-btn" data-preset="praktijk">Onderwijspraktijk</button>
-        <button type="button" class="preset-btn" data-preset="onderzoek">Onderzoek & Kennis</button>
-        <button type="button" class="preset-btn" data-preset="expert">Experts</button>
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">DUO-Onderwijs</div>
+        <h1>Onderwijs Nieuws Feed</h1>
       </div>
+      <div class="hero-side" aria-live="polite">
+        <span class="last-check" id="freshnessLabel">Nog niet bijgewerkt</span>
+        <span id="latestArticleLabel">De artikelen worden opgehaald.</span>
+      </div>
+    </header>
+
+    <section class="control-surface" aria-label="Zoeken en weergave instellen">
+      <div class="control-top">
+        <div class="search-box">
+          <label class="sr-only" for="searchInput">Zoek op titel, tekst, auteur of bron</label>
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span>
+          <input id="searchInput" type="search" placeholder="Zoeken…" autocomplete="off">
+          <button class="clear-search" id="clearSearch" type="button" aria-label="Zoekopdracht wissen" hidden>×</button>
+        </div>
+        <div class="controls-right">
+          <div class="view-switch" role="group" aria-label="Weergave">
+            <button class="view-btn" data-view="magazine" aria-pressed="true" type="button">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Magazine
+            </button>
+            <button class="view-btn" data-view="compact" aria-pressed="false" type="button">
+              <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span>Compact
+            </button>
+          </div>
         </div>
       </div>
 
-      <div id="status" class="status">Artikelen worden geladen…</div>
+      <div class="filter-row" id="newsFilters">
+        <div class="preset-wrap" id="presetBar" role="group" aria-label="Bronnengroepen">
+          <button class="preset-btn" id="allSourcesButton" aria-label="Alle bronnen" title="Alle bronnen" aria-pressed="true" type="button">Alle bronnen</button>
+          <button class="preset-btn" data-group="arbeid" aria-label="Arbeid, HR &amp; organisatie" title="Arbeid, HR &amp; organisatie" aria-pressed="false" type="button">Arbeid &amp; HR</button>
+          <button class="preset-btn" data-group="beleid" aria-label="Beleid &amp; bestuur" title="Beleid &amp; bestuur" aria-pressed="false" type="button">Beleid &amp; bestuur </button>
+          <button class="preset-btn" data-group="praktijk" aria-label="Praktijk &amp; media" title="Praktijk &amp; media" aria-pressed="false" type="button">Praktijk &amp; media</button>
+          <button class="preset-btn" data-group="onderzoek" aria-label="Onderzoek &amp; kennis" title="Onderzoek &amp; kennis" aria-pressed="false" type="button">Onderzoek &amp; kennis</button>
+          <button class="preset-btn" data-group="expert" aria-pressed="false" type="button">Experts</button>
+        </div>
 
-      <!-- Magazine grid -->
-      <div id="grid" class="grid"></div>
-    </div>
+        <details class="source-details" id="sourceDetails">
+          <summary id="sourcesSummary">
+            <span id="sourceSummaryText">Bronnen kiezen</span>
+            <span class="chevron" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="source-popover">
+            <div class="source-popover-head">
+              <strong>Specifieke bronnen</strong>
+              <div class="source-actions">
+                <button type="button" id="sourceAll">Alles tonen</button>
+                <button type="button" id="sourceNone">Geen selecteren</button>
+              </div>
+            </div>
+            <div id="sourceOptions" class="source-options" aria-label="Beschikbare nieuwsbronnen"></div>
+            <p class="source-help">De groepen zijn gebaseerd op uitgevers, niet op de inhoud van elk artikel. Een 0 betekent dat een bron momenteel geen artikelen aanlevert.</p>
+          </div>
+        </details>
+      </div>
+    </section>
 
-    <script>
-      // JSON Feed URLs for this magazine
-      const FEED_URLS = [
-        "https://rss.app/feeds/v1.1/_5VKbx4jDjq4BE7Jl.json",
-        "https://rss.app/feeds/v1.1/_iccmMsqOiAvSwuxw.json",
-        "https://rss.app/feeds/v1.1/_jP0bIK60FpRheHgg.json",
-        "https://rss.app/feeds/v1.1/_o8AeNmBacN6b9Fg5.json",
-        "https://rss.app/feeds/v1.1/_wW8fyjqDAWaqcUaB.json",
-        "https://rss.app/feeds/v1.1/_gfaUnOz1zgx4Yn3Z.json",
-        "https://rss.app/feeds/v1.1/_t1qbjtChhi1kfdTk.json",
-      ];
+    <section aria-label="Artikelen">
+      <div class="section-bar">
+        <nav class="tab-row" aria-label="Artikellijsten">
+          <button type="button" class="tab-btn" id="tabNews" aria-pressed="true">Nieuws</button>
+          <button type="button" class="tab-btn" id="tabSaved" aria-pressed="false">Bewaarde artikelen <span id="savedCount" class="tab-count">0</span></button>
+        </nav>
+        <div class="section-actions">
+          <span class="result-count" id="resultCount" aria-live="polite">Artikelen worden geladen…</span>
+          <button class="refresh-btn" type="button" id="refreshButton">
+            <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.8 9a7 7 0 0 1 12-2L20 12M4 12l2.2 3a7 7 0 0 0 12-1"/></svg></span>
+            <span id="refreshText">Vernieuwen</span>
+          </button>
+        </div>
+      </div>
 
-      // Change this number to allow more/less articles per host
-      const MAX_PER_HOST = 12;
+      <div class="notice" id="feedNotice" role="status">Artikelen worden geladen…</div>
+      <div class="articles view-magazine" id="articles" aria-label="Nieuwsartikelen"></div>
+      <details id="filterDiagnostics" class="filter-diagnostics">
+        <summary id="diagnosticsSummary">Filtercontrole — wacht op de bronnen…</summary>
+        <div id="diagnosticsBody"></div>
+      </details>
+    </section>
+    <footer class="footer">Een interne startpagina van DUO-Onderwijs. Artikelen openen bij de oorspronkelijke uitgever.</footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-      const BLOCKED_HOSTS = new Set([
-        "nl.linkedin.com",
-        "linkedin.com",
-        "www.linkedin.com",
-        "facebook.com",
-        "www.facebook.com",
-        "m.facebook.com",
-        "l.facebook.com",
-        "fb.com",
-        "www.fb.com",
-      ]);
+  <script>
+    "use strict";
 
-      // preset categories
-      const PRESETS_BY_HOST = {
-      arbeid: [
-        "duo-onderwijs.nl",
-        "aob.nl",
-        "cnv.nl",
-        "avs.nl",
-        "vfpf.nl",
-        "voion.nl",
-        "noloc.nl",
-        "platformsamenopleiden.nl",
-      ],
-      beleid: [
-        "voo.nl",
-        "nieuwsbrievenminocw.nl",
-        "poraad.nl",
-        "vo-raad.nl",
-        "vosabb.nl",
-        "verus.nl",
-        "gespecialiseerdonderwijs.nl",
-        "klimmbo.nl",
-        "onderwijsenexaminering.nl",
-        "taalenrekenenmbo.nl",
-      ],
-      praktijk: [
-        "kennisnet.nl",
-        "didactiefonline.nl",
-        "dnmonline.nl",
-        "gezondeschool.nl",
-        "schoolenveiligheid.nl",
-        "expertisepuntburgerschap.nl",
-        "steunpuntpassendonderwijs-povo.nl",
-        "nationaleonderwijsgids.nl",
-        "oudersenonderwijs.nl",
-        "onderwijsvanmorgen.nl",
-        "netwerkmediawijsheid.nl",
-        "trouw.nl",
-        "ad.nl",
-        "volkskrant.nl",
-        "nos.nl",
-        "nrc.nl",
-        "nieuws.nl",
-        "metronieuws.nl",
-      ],
-      onderzoek: [
-        "cito.nl",
-        "slo.nl",
-        "nro.nl",
-        "nji.nl",
-        "lezen.nl",
-        "vorsite.nl",
-        "ou.nl",
-        "nko.nl",
-      ],
-      expert: [
-        "pedrodebruyckere.blog",
-        "kirschnered.nl",
-      ],
+    /* ======================================================================
+       1. CONFIGURATION
+       ====================================================================== */
+    // Each record is an original RSS.app source. No bundled feeds.
+    const FEEDS = [
+  {
+    "id": "ad-wetenschap",
+    "name": "AD Wetenschap",
+    "host": "ad.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/nmyjbuLU37ALX6CF.json",
+    "fallbackEndpoint": "https://rss.app/feeds/nmyjbuLU37ALX6CF.xml",
+    "endpointVerified": false
+  },
+  {
+    "id": "ad-home",
+    "name": "AD Home",
+    "host": "ad.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/k4iFmjbgWq1F6VVm.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "nrc-nieuws",
+    "name": "NRC nieuws",
+    "host": "nrc.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/tsgsiVPg2D2GU0Vm.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nrc-wetenschap",
+    "name": "NRC wetenschap",
+    "host": "nrc.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/OwYJZq7J4ozbN6Jf.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nos",
+    "name": "NOS",
+    "host": "nos.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/r6Hnv2fCiBhW30NG.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "trouw-nieuws",
+    "name": "Trouw nieuws",
+    "host": "trouw.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/4A93rhAAT5HW9PMg.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "trouw-onderwijs-en-opvoeding",
+    "name": "Trouw onderwijs en opvoeding",
+    "host": "trouw.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/IwZFywDf2Q7upPBb.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "volkskrant-nieuws",
+    "name": "Volkskrant nieuws",
+    "host": "volkskrant.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/2gEH7kzGmqIrmU4q.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "volkskrant-achtergrond",
+    "name": "Volkskrant achtergrond",
+    "host": "volkskrant.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/wum5tG8shKTD34aM.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "volkskrant-opinie",
+    "name": "Volkskrant opinie",
+    "host": "volkskrant.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/WRdIHJHIpceW6euh.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "volkskrant-wetenschap",
+    "name": "Volkskrant wetenschap",
+    "host": "volkskrant.nl",
+    "group": "praktijk",
+    "profile": "education-full",
+    "endpoint": "https://rss.app/feeds/v1.1/dvZ1zwsBo4KArzVm.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "aob",
+    "name": "AOb",
+    "host": "aob.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/YtpeaUELVl5x0vPP.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "avs",
+    "name": "AVS",
+    "host": "avs.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/9SN49aUa0WX88Tsu.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "cnv---po",
+    "name": "CNV – PO",
+    "host": "cnv.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/ApwUeqBeuTVdIew9.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "cnv---schoolleider",
+    "name": "CNV – schoolleider",
+    "host": "cnv.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/H1ckXn0Xebzs7jCK.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "cnv---vo",
+    "name": "CNV – VO",
+    "host": "cnv.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/OSi3JikclyUdm4Ds.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "dnm",
+    "name": "DNM",
+    "host": "dnmonline.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/syYVQOkoVOI1qYU2.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "platform-samen-opleiden",
+    "name": "Platform Samen Opleiden",
+    "host": "platformsamenopleiden.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/AMIPACnZENknFY2E.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "voion",
+    "name": "Voion",
+    "host": "voion.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/GKGljQGWwlydhNYH.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "vfpf",
+    "name": "VfPf",
+    "host": "vfpf.nl",
+    "group": "arbeid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/wCGMncmvomCKCvJv.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "noordhoff",
+    "name": "Noordhoff",
+    "host": "noordhoff.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/5n8VztNlhjmgfDGJ.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "blink",
+    "name": "Blink",
+    "host": "blink.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/IvRtYECxNdRFGZmc.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "bruyckere",
+    "name": "Bruyckere",
+    "host": "pedrodebruyckere.blog",
+    "group": "expert",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/gi4zZZiEkZyJSffV.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "kirschner",
+    "name": "Kirschner",
+    "host": "kirschnered.nl",
+    "group": "expert",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/m11mKotbaFQdmDub.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "slo",
+    "name": "SLO",
+    "host": "slo.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/IF7iC04w2vkFFIvJ.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "stichting-lezen",
+    "name": "Stichting Lezen",
+    "host": "lezen.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/IDItmPeUjdfClCdO.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "open-universiteit",
+    "name": "Open Universiteit",
+    "host": "ou.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/4uCuQvDJNrCjmV9k.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "vor",
+    "name": "VOR",
+    "host": "vorsite.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/ZI7oMNg3OpdlMF0L.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nji",
+    "name": "NJi",
+    "host": "nji.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/6t32cMlsFx0ErSke.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nko",
+    "name": "NKO",
+    "host": "nko.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/0F8vgMKvpwC6wIOb.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "cito",
+    "name": "Cito",
+    "host": "cito.nl",
+    "group": "onderzoek",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/sHIf3qQO9Ch7ilDB.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "ouders-&-onderwijs",
+    "name": "Ouders & Onderwijs",
+    "host": "oudersenonderwijs.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/sYr3p9zBgmdDIU75.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "school-&-veiligheid",
+    "name": "School & Veiligheid",
+    "host": "schoolenveiligheid.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/f3QwyqNLnVHEX3js.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "kennisnet",
+    "name": "Kennisnet",
+    "host": "kennisnet.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/LJZBmXPKHRPifmEJ.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "expertisecentrum-burgerschap",
+    "name": "Expertisecentrum Burgerschap",
+    "host": "expertisepuntburgerschap.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/zubQDJHbuzMr4y7V.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "didactief",
+    "name": "Didactief",
+    "host": "didactiefonline.nl",
+    "group": "praktijk",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/eCMvrAyCqhPezjZo.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "ocw",
+    "name": "OCW",
+    "host": "nieuwsbrievenminocw.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/LRMneqGLv2v9JDah.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "onderwijsraad",
+    "name": "Onderwijsraad",
+    "host": "onderwijsraad.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/jRAivmpZ6wcFATJS.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "go-raad",
+    "name": "GO-raad",
+    "host": "gespecialiseerdonderwijs.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/dBBhXgWyuW77ECVT.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "vereniging-openbaar-onderwijs",
+    "name": "Vereniging Openbaar Onderwijs",
+    "host": "voo.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/KbUyj8faZf8PwOTp.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "verus",
+    "name": "Verus",
+    "host": "verus.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/lcVgY2BIJj1fUgM6.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "vos-abb",
+    "name": "VOS/ABB",
+    "host": "vosabb.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/s7oSHGIvJVOxBAmr.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "po-raad",
+    "name": "PO-Raad",
+    "host": "poraad.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/SfPDyA1A6Qvp6r06.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "vo-raad",
+    "name": "VO-raad",
+    "host": "vo-raad.nl",
+    "group": "beleid",
+    "profile": "limited",
+    "endpoint": "https://rss.app/feeds/v1.1/EgsJwpmEl09YE2wc.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nationale-onderwijsgids---mbo",
+    "name": "Nationale Onderwijsgids – mbo",
+    "host": "nationaleonderwijsgids.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/AECWQdnuaUORcLem.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nationale-onderwijsgids---so",
+    "name": "Nationale Onderwijsgids – so",
+    "host": "nationaleonderwijsgids.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/sx6lCzrMW8keJHr1.json",
+    "endpointVerified": false
+  },
+  {
+    "id": "nationale-onderwijsgids---vo",
+    "name": "Nationale Onderwijsgids – vo",
+    "host": "nationaleonderwijsgids.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/x35ctewdAVZBrw7O.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "nationale-onderwijsgids---po",
+    "name": "Nationale Onderwijsgids – po",
+    "host": "nationaleonderwijsgids.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/30PYOml2ZfsSItIT.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "onderwijs-van-morgen---algemeen",
+    "name": "Onderwijs van Morgen – algemeen",
+    "host": "onderwijsvanmorgen.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/2e0kUFjIwQPxaonD.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "onderwijs-van-morgen---po",
+    "name": "Onderwijs van Morgen – po",
+    "host": "onderwijsvanmorgen.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/XUA9GznfPqTW8MN0.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "onderwijs-van-morgen---vo",
+    "name": "Onderwijs van Morgen – vo",
+    "host": "onderwijsvanmorgen.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/02ZHZGrmSngnJ5ZA.json",
+    "endpointVerified": true
+  },
+  {
+    "id": "onderwijs-van-morgen---mbo",
+    "name": "Onderwijs van Morgen – mbo",
+    "host": "onderwijsvanmorgen.nl",
+    "group": "praktijk",
+    "profile": "full",
+    "endpoint": "https://rss.app/feeds/v1.1/EWQw4wH3hVinxfj1.json",
+    "endpointVerified": true
+  }
+];
+
+    // Rules use the three profiles requested: education-full, limited, full.
+    const FILTER_TERMS = {
+  "whitelist": [
+    "onderwijs",
+    "leraar",
+    "klas",
+    "leerling",
+    "school",
+    "scholen",
+    "leerlingen",
+    "basisschool",
+    "leraren",
+    "juf",
+    "leerkracht",
+    "docent",
+    "docenten",
+    "juffen",
+    "lesgeven",
+    "mbo",
+    "beroepsonderwijs",
+    "collegezalen",
+    "les geven",
+    "les krijgen",
+    "krijgen les",
+    "geven les",
+    "studiekeuze",
+    "ocw",
+    "onderwijsinspectie",
+    "po-raad",
+    "vo-raad",
+    "mbo raad",
+    "aob",
+    "lerarentekort",
+    "basisvaardigheden",
+    "doorstroomtoets",
+    "eindexamen",
+    "schooladvies",
+    "passend onderwijs",
+    "curriculum",
+    "didactiek",
+    "pedagogiek",
+    "speciaal onderwijs",
+    "onderwijsraad",
+    "onderwijspersoneel",
+    "schoolbestuur",
+    "schoolbesturen",
+    "scholenkoepel",
+    "basisonderwijs",
+    "voortgezet onderwijs",
+    "middelbaar beroepsonderwijs",
+    "primair onderwijs",
+    "vmbo",
+    "havo",
+    "vwo",
+    "vso",
+    "sbo",
+    "speciaal basisonderwijs",
+    "praktijkonderwijs",
+    "hoger onderwijs",
+    "pabo",
+    "lerarenopleiding",
+    "lerarenopleidingen",
+    "onderwijsassistent",
+    "onderwijsassistenten",
+    "intern begeleider",
+    "kwaliteitscoordinator",
+    "schoolleider",
+    "schoolleiders",
+    "rector",
+    "conrector",
+    "mentor",
+    "mentoren",
+    "schoolleiding",
+    "schooldirecteur",
+    "schooldirectie",
+    "schoolbestuurder",
+    "onderwijshuisvesting",
+    "bekostiging",
+    "onderwijsgeld",
+    "onderwijskwaliteit",
+    "onderwijsbeleid",
+    "onderwijswetgeving",
+    "schoolbeleid",
+    "leerprestaties",
+    "leerresultaten",
+    "leerdoelen",
+    "leerproces",
+    "leerontwikkeling",
+    "leerachterstand",
+    "leervertraging",
+    "lesmateriaal",
+    "lesmethode",
+    "lesmethoden",
+    "leermiddelen",
+    "toetsing",
+    "examinering",
+    "kerndoelen",
+    "eindtermen",
+    "toetsresultaten",
+    "schoolexamen",
+    "kansengelijkheid",
+    "kansenongelijkheid",
+    "onderwijsachterstand",
+    "thuiszitters",
+    "schoolverzuim",
+    "verzuimbeleid",
+    "schooluitval",
+    "voortijdig schoolverlaten",
+    "leesvaardigheid",
+    "rekenvaardigheid",
+    "taalvaardigheid",
+    "laaggeletterdheid",
+    "onderwijsarbeidsmarkt",
+    "personeelstekort",
+    "docententekort",
+    "onderwijsstaking",
+    "lerarensalaris",
+    "lerarenbeurs",
+    "werkdruk",
+    "taakbeleid",
+    "cao onderwijs",
+    "cao po",
+    "cao vo",
+    "professionalisering",
+    "sociale veiligheid",
+    "schoolveiligheid",
+    "pestbeleid",
+    "pesten op school",
+    "leerlingwelzijn",
+    "welbevinden",
+    "pedagogisch klimaat",
+    "schoolklimaat",
+    "inclusief onderwijs",
+    "onderwijsonderzoek",
+    "onderwijsinnovatie",
+    "onderwijsontwikkeling",
+    "evidence informed",
+    "evidence based onderwijs",
+    "leerlingtevredenheid",
+    "oudertevredenheid",
+    "medewerkerstevredenheid",
+    "schoolleiderschap",
+    "leiderschapsonderzoek",
+    "onderwijsprofessionals",
+    "onderwijsprofessional",
+    "burgerschapsonderwijs",
+    "digitale geletterdheid",
+    "onderwijstechnologie",
+    "lerarenregister",
+    "scholengemeenschap",
+    "schoolgemeenschap",
+    "kinderopvang",
+    "voor- en vroegschoolse educatie",
+    "leerplicht",
+    "schoolinspectie",
+    "inspectie van het onderwijs",
+    "cito",
+    "slo",
+    "nro",
+    "kennisnet",
+    "onderwijsregio",
+    "po raad",
+    "vo raad",
+    "voortgezet speciaal onderwijs",
+    "basisscholen",
+    "leerrecht",
+    "schoolcultuur",
+    "schoolbestuurlijk",
+    "lerarenopleider",
+    "lerarenopleiders"
+  ],
+  "fullOriginal": [
+    "cel",
+    "celstraf",
+    "gevangenis",
+    "veroordeeld",
+    "rechter",
+    "braafste jongetje van de klas",
+    "schietpartij",
+    "schutter",
+    "schietincident",
+    "schietincidenten",
+    "gedood",
+    "dood",
+    "palestijns",
+    "israel",
+    "aanval",
+    "doden",
+    "dreigbericht",
+    "politie",
+    "melding",
+    "dreiging",
+    "explosie",
+    "aanslag",
+    "ongeluk",
+    "stierf",
+    "verongelukt",
+    "trump",
+    "moord",
+    "moordenaar",
+    "palestine",
+    "boekentip",
+    "boekentips",
+    "oekraine",
+    "russische",
+    "russisch",
+    "olie",
+    "india",
+    "china",
+    "rusland",
+    "amerika",
+    "noorwegen",
+    "italie",
+    "frankrijk",
+    "europa",
+    "duitsland",
+    "overleden",
+    "mayo"
+  ],
+  "limited": [
+    "doe mee",
+    "vul de vragenlijst",
+    "zorgverzekering",
+    "gezocht",
+    "alles voor de sector",
+    "werksessie",
+    "ov-staking",
+    "vul onze vragenlijst in",
+    "vul de enquete in",
+    "doe mee aan ons onderzoek",
+    "neem deel aan",
+    "laat je stem horen",
+    "geef je mening",
+    "jouw mening telt",
+    "wij zoeken deelnemers",
+    "deelnemers gezocht",
+    "meld je aan",
+    "schrijf je in",
+    "schrijf je nu in",
+    "aanmelden voor",
+    "schrijf je vandaag nog in",
+    "reserveer je plek",
+    "reserveer je plaats",
+    "save the date",
+    "uitnodiging voor",
+    "inschrijving geopend",
+    "profiteer nu",
+    "speciale aanbieding",
+    "exclusieve korting",
+    "kortingsactie",
+    "kortingscode",
+    "bestel nu",
+    "koop nu",
+    "probeer gratis",
+    "gratis proefperiode",
+    "solliciteer nu",
+    "kom werken bij",
+    "vacature",
+    "vacatures",
+    "solliciteer",
+    "sollicitatie",
+    "wij zoeken een",
+    "steun onze actie",
+    "teken de petitie",
+    "onderteken de petitie",
+    "doneer nu",
+    "geef je op",
+    "winactie",
+    "doe mee en win",
+    "schrijf je gratis in",
+    "bekijk ons aanbod",
+    "vraag de brochure aan"
+  ],
+  "limitedTitleOnly": [
+    "gezocht",
+    "vacature",
+    "vacatures",
+    "sollicitatie",
+    "solliciteer",
+    "werksessie",
+    "alles voor de sector",
+    "zorgverzekering",
+    "ov-staking"
+  ],
+  "fullHardTitle": [
+    "braafste jongetje van de klas",
+    "celstraf",
+    "gevangenis",
+    "schietpartij",
+    "schutter",
+    "schietincident",
+    "schietincidenten",
+    "gedood",
+    "explosie",
+    "aanslag",
+    "verongelukt",
+    "trump",
+    "moordenaar",
+    "boekentip",
+    "boekentips",
+    "steekpartij",
+    "steekincident",
+    "mesaanval",
+    "vuurwapen",
+    "bomdreiging",
+    "gijzeling",
+    "gevangenisstraf",
+    "doodslag",
+    "brandstichting",
+    "bombardement",
+    "raketaanval",
+    "luchtaanval",
+    "hamas",
+    "realityshow",
+    "realityprogramma",
+    "reality-tv",
+    "talentenjacht",
+    "soapserie",
+    "showbizz",
+    "hollywood",
+    "netflix-serie",
+    "videoland-serie",
+    "rtl-programma",
+    "uitzending vanavond",
+    "aflevering vanavond",
+    "romanrecensie",
+    "thrillerrecensie",
+    "bestsellerlijst",
+    "nieuwste thriller",
+    "nieuwste roman",
+    "boekenaanbieding",
+    "boekensale",
+    "mayo"
+  ],
+  "fullContextual": [
+    "cel",
+    "veroordeeld",
+    "rechter",
+    "dood",
+    "palestijns",
+    "israel",
+    "aanval",
+    "doden",
+    "dreigbericht",
+    "politie",
+    "melding",
+    "dreiging",
+    "ongeluk",
+    "stierf",
+    "moord",
+    "palestine",
+    "oekraine",
+    "russische",
+    "russisch",
+    "olie",
+    "india",
+    "china",
+    "rusland",
+    "amerika",
+    "noorwegen",
+    "italie",
+    "frankrijk",
+    "europa",
+    "duitsland",
+    "overleden",
+    "messteken",
+    "schietwapen",
+    "gewapende aanval",
+    "bommelding",
+    "arrestatie",
+    "aangehouden",
+    "verdachte",
+    "strafzaak",
+    "rechtszaak",
+    "mishandeling",
+    "slachtoffer",
+    "slachtoffers",
+    "geweldsincident",
+    "verkeersongeluk",
+    "verkeersongeval",
+    "vermissing",
+    "oorlog",
+    "oorlogsgebied",
+    "militaire operatie",
+    "frontlinie",
+    "gaza",
+    "israels",
+    "israelisch",
+    "oekraiens",
+    "oekraiense",
+    "poetin",
+    "putin",
+    "verenigde staten",
+    "amerikanen",
+    "amerikaanse scholen",
+    "buitenlandse scholen",
+    "televisieprogramma",
+    "tv-programma",
+    "kijkcijfers",
+    "televisieserie",
+    "bn-er",
+    "celebrity",
+    "sterrennieuws",
+    "boekbespreking",
+    "literaire recensie",
+    "bestseller top 10",
+    "boekpresentatie",
+    "boekenmarkt"
+  ],
+  "international": [
+    "palestijns",
+    "palestine",
+    "israel",
+    "israelisch",
+    "oekraine",
+    "oekraiense",
+    "russisch",
+    "russische",
+    "rusland",
+    "india",
+    "china",
+    "amerika",
+    "noorwegen",
+    "italie",
+    "frankrijk",
+    "europa",
+    "duitsland",
+    "buitenlandse",
+    "verenigde staten",
+    "belgie",
+    "engeland",
+    "gaza",
+    "brits",
+    "franse",
+    "duitse",
+    "amerikaanse",
+    "oekraiense",
+    "internationale"
+  ],
+  "foreignSchool": [
+    "school",
+    "scholen",
+    "onderwijs",
+    "leerling",
+    "leraar",
+    "docent",
+    "universiteit",
+    "student"
+  ],
+  "incident": [
+    "schietpartij",
+    "steekpartij",
+    "schietincident",
+    "steekincident",
+    "vuurwapen",
+    "aanval",
+    "doden",
+    "dreiging",
+    "explosie",
+    "aanslag",
+    "moord",
+    "gevangenis",
+    "geweld",
+    "oorlog",
+    "bombardement",
+    "dood",
+    "gedood",
+    "overleden",
+    "politie",
+    "rechter",
+    "cel",
+    "celstraf",
+    "gevangenisstraf",
+    "verongelukt",
+    "ongeluk",
+    "schutter",
+    "arrestatie",
+    "mishandeling",
+    "melding",
+    "dreigbericht",
+    "slachtoffers",
+    "veroordeling",
+    "veroordeeld"
+  ],
+  "entertainment": [
+    "sinterklaasjournaal",
+    "netflix",
+    "rtl 4",
+    "rtl4",
+    "rtl programma",
+    "videoland",
+    "talentenjacht",
+    "realityserie",
+    "realityshow",
+    "televisieprogramma",
+    "tv programma",
+    "showbizz",
+    "celebrity",
+    "acteur",
+    "actrice",
+    "kijkcijfers",
+    "aflevering vanavond",
+    "de slimste mens",
+    "expeditie robinson",
+    "the voice",
+    "wie is de mol"
+  ],
+  "dutchAnchor": [
+    "in nederland",
+    "nederlandse scholen",
+    "nederlandse leerlingen",
+    "nederlandse leraren",
+    "nederlandse docenten",
+    "nederlands onderwijs",
+    "onderwijs in nederland",
+    "naar nederland",
+    "op nederlandse scholen",
+    "vluchtelingenleerlingen",
+    "opvang van oekraiense leerlingen",
+    "europese onderwijsbeleid",
+    "europese onderwijsruimte"
+  ],
+  "foreignContext": [
+    "in amerika",
+    "in china",
+    "in india",
+    "in duitsland",
+    "in frankrijk",
+    "in italie",
+    "in noorwegen",
+    "in rusland",
+    "in israel",
+    "in gaza",
+    "in oekraine",
+    "in de verenigde staten",
+    "op scholen in",
+    "op een school in",
+    "school in de vs",
+    "amerikaanse school",
+    "duitse school",
+    "franse school",
+    "buitenlandse school",
+    "buitenlandse scholen"
+  ],
+  "genericIrrelevant": [
+    "olie",
+    "mayo"
+  ]
+};
+
+    const MAX_PER_HOST = 12;
+    const MAX_ARTICLE_AGE_DAYS = 90;
+    const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+    const FEED_TIMEOUT_MS = 10000;
+    const FETCH_CONCURRENCY = 8;
+    // false: contextual blocking for broad words such as politie and Europa.
+    // true: reject any original full-blacklist term in title or description.
+    const STRICT_FULL_BLACKLIST = true;
+    const PREFS_KEY = "duo-newsfeed-prefs-v2";
+    const BOOKMARKS_KEY = "duo-newsfeed-bookmarks-v2";
+
+    const GROUPS = [
+      { id: "arbeid", label: "Arbeid, HR & organisatie" },
+      { id: "beleid", label: "Beleid & bestuur" },
+      { id: "praktijk", label: "Praktijk & media" },
+      { id: "onderzoek", label: "Onderzoek & kennis" },
+      { id: "expert", label: "Experts" }
+    ];
+
+    // Single source registry: one location for source names and group memberships.
+    // Unknown domains are also included automatically under "Overige bronnen".
+    const PUBLISHER_NAMES = {
+      "ad.nl": "Algemeen Dagblad", "nrc.nl": "NRC", "nos.nl": "NOS",
+      "trouw.nl": "Trouw", "volkskrant.nl": "Volkskrant",
+      "cnv.nl": "CNV", "aob.nl": "AOb", "avs.nl": "AVS",
+      "dnmonline.nl": "De Nieuwe Meso", "platformsamenopleiden.nl": "Platform Samen Opleiden",
+      "voion.nl": "Voion", "vfpf.nl": "VfPf", "noordhoff.nl": "Noordhoff",
+      "blink.nl": "Blink", "pedrodebruyckere.blog": "Pedro de Bruyckere",
+      "kirschnered.nl": "Paul Kirschner", "lezen.nl": "Stichting Lezen",
+      "ou.nl": "Open Universiteit", "vorsite.nl": "VOR", "nji.nl": "NJi",
+      "nko.nl": "NKO (voormalig NRO)", "cito.nl": "Cito", "slo.nl": "SLO",
+      "oudersenonderwijs.nl": "Ouders & Onderwijs", "schoolenveiligheid.nl": "School & Veiligheid",
+      "kennisnet.nl": "Kennisnet", "expertisepuntburgerschap.nl": "Expertisecentrum Burgerschap",
+      "didactiefonline.nl": "Didactief", "nieuwsbrievenminocw.nl": "OCW",
+      "onderwijsraad.nl": "Onderwijsraad", "gespecialiseerdonderwijs.nl": "GO-raad",
+      "voo.nl": "Vereniging Openbaar Onderwijs", "verus.nl": "Verus",
+      "vosabb.nl": "VOS/ABB", "poraad.nl": "PO-Raad", "vo-raad.nl": "VO-raad",
+      "nationaleonderwijsgids.nl": "Nationale Onderwijsgids",
+      "onderwijsvanmorgen.nl": "Onderwijs van Morgen"
     };
-      
-      // Force images for specific sources (by host)
-      const FORCE_IMAGE_FOR_HOST = {
-          "vfpf.nl": "https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
-          "voion.nl": "https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
-          "vosabb.nl": "https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
-          "voo.nl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ552umSwbhMhYJSc3_0UaYfAti5RMJozh7eQ&s",
-        // add more hosts here if needed
-      };
-      
-      let allArticles = [];
-      let activeTags = new Set();
-      let searchQuery = "";
+    const SOURCES = Object.fromEntries(FEEDS.map(feed => [feed.host, {
+      name: PUBLISHER_NAMES[feed.host] || feed.name,
+      group: feed.group
+    }]));
 
-      document.addEventListener("DOMContentLoaded", () => {
-        fetchFeed();
-        setupSearch();
-        setupPresetButtons();
+    const BLOCKED_DOMAINS = ["linkedin.com", "facebook.com", "fb.com"];
+    const $ = (id) => document.getElementById(id);
+    const collator = new Intl.Collator("nl-NL", { sensitivity: "base" });
+    const fullDateFormatter = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" });
+
+    /* ======================================================================
+       2. APPLICATION STATE & LOCAL STORAGE
+       ====================================================================== */
+    const state = {
+      articles: [],
+      byId: new Map(),
+      sourceStats: new Map(),
+      availableHosts: [],
+      selectionMode: "all",           // "all" or "custom". Empty custom = no sources.
+      selectedHosts: new Set(),       // domain IDs, not display labels
+      view: "magazine",              // magazine or compact
+      tab: "news",                   // news or saved; always start on news
+      search: "",                    // deliberately not saved between visits
+      bookmarks: new Map(),          // id -> saved snapshot, retained after RSS removal
+      loading: false,
+      checkedAt: null,               // successful browser retrieval, not RSS publication time
+      successfulFeeds: 0,
+      failedFeeds: 0,
+      loadError: false,
+      reports: [],
+      rejected: [],
+      sourceFailures: [],
+      totalIncoming: 0,
+      totalExcluded: 0,
+      totalDuplicates: 0
+    };
+
+    function readStorage(key) {
+      try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : null;
+      } catch (error) {
+        console.warn("Unable to read localStorage:", error);
+        return null;
+      }
+    }
+
+    let storageWarningShown = false;
+    function writeStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch (error) {
+        console.warn("Unable to write localStorage:", error);
+        if (!storageWarningShown) {
+          storageWarningShown = true;
+          showToast("Deze browser kan voorkeuren niet bewaren. Controleer de browserinstellingen.");
+        }
+        return false;
+      }
+    }
+
+    function loadPreferences() {
+      const prefs = readStorage(PREFS_KEY);
+      if (!prefs || typeof prefs !== "object") return;
+      state.view = prefs.view === "compact" ? "compact" : "magazine";
+      state.selectionMode = prefs.selectionMode === "custom" ? "custom" : "all";
+      if (Array.isArray(prefs.selectedHosts)) {
+        state.selectedHosts = new Set(
+          prefs.selectedHosts
+            .filter((host) => typeof host === "string" && /^[a-z0-9.-]{1,200}$/.test(host))
+            .slice(0, 500)
+        );
+      }
+    }
+
+    function savePreferences() {
+      writeStorage(PREFS_KEY, {
+        view: state.view,
+        selectionMode: state.selectionMode,
+        selectedHosts: [...state.selectedHosts]
+      });
+    }
+
+    function loadBookmarks() {
+      const saved = readStorage(BOOKMARKS_KEY);
+      if (!Array.isArray(saved)) return;
+      for (const item of saved) {
+        if (!item || typeof item !== "object") continue;
+        const link = normalizedArticleUrl(item.link);
+        if (!link) continue;
+        const host = hostname(link);
+        if (isBlockedHost(host)) continue;
+        state.bookmarks.set(link, {
+          id: link,
+          link,
+          host,
+          title: typeof item.title === "string" ? item.title.slice(0, 500) : "Zonder titel",
+          description: typeof item.description === "string" ? item.description.slice(0, 900) : "",
+          author: typeof item.author === "string" ? item.author.slice(0, 200) : "",
+          source: sourceName(host),
+          image: safeHttpUrl(item.image),
+          publishedAt: validTimestamp(item.publishedAt),
+          savedAt: validTimestamp(item.savedAt) || Date.now()
+        });
+      }
+    }
+
+    function saveBookmarks() {
+      writeStorage(BOOKMARKS_KEY, [...state.bookmarks.values()]);
+    }
+
+    /* ======================================================================
+       3. DATA VALIDATION / FEED NORMALIZATION
+       ====================================================================== */
+    function safeHttpUrl(value) {
+      if (typeof value !== "string" || !value.trim()) return null;
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function normalizedArticleUrl(value) {
+      const safe = safeHttpUrl(value);
+      if (!safe) return null;
+      const url = new URL(safe);
+      url.hash = "";
+      for (const key of [...url.searchParams.keys()]) {
+        if (/^utm_/i.test(key) || ["fbclid", "gclid", "mc_cid", "mc_eid"].includes(key.toLowerCase())) {
+          url.searchParams.delete(key);
+        }
+      }
+      if (url.pathname.length > 1) url.pathname = url.pathname.replace(/\/+$/, "");
+      return url.href;
+    }
+
+    function hostname(url) {
+      try { return new URL(url).hostname.toLowerCase().replace(/^www\./, ""); }
+      catch { return ""; }
+    }
+
+    function isBlockedHost(host) {
+      return BLOCKED_DOMAINS.some((domain) => host === domain || host.endsWith("." + domain));
+    }
+
+    function sourceName(host) { return SOURCES[host]?.name || host || "Onbekende bron"; }
+    function sourceGroup(host) { return SOURCES[host]?.group || "other"; }
+
+    function validTimestamp(value) {
+      if (typeof value === "number" && Number.isFinite(value) && value > 0 && value < 8640000000000000) return value;
+      if (typeof value === "string" && value.trim()) {
+        const ms = Date.parse(value);
+        return Number.isFinite(ms) ? ms : null;
+      }
+      return null;
+    }
+
+    // Exclude undated articles and articles older than a rolling 90-day window.
+    // Explicitly saved bookmarks are preserved in the reading list.
+    function articleDateIssue(publishedAt, now = Date.now()) {
+      if (!Number.isFinite(publishedAt) || publishedAt <= 0) {
+        return "Geen geldige publicatiedatum";
+      }
+      if (publishedAt < now - MAX_ARTICLE_AGE_DAYS * MILLISECONDS_PER_DAY) {
+        return "Ouder dan " + MAX_ARTICLE_AGE_DAYS + " dagen";
+      }
+      return null;
+    }
+
+    function textFromFeed(value) {
+      if (typeof value !== "string") return "";
+      // Parse HTML snippets in an inert document; never insert feed HTML into the UI.
+      const doc = new DOMParser().parseFromString(value, "text/html");
+      doc.querySelectorAll("script, style, noscript").forEach((node) => node.remove());
+      return (doc.body.textContent || "").replace(/\s+/g, " ").trim();
+    }
+
+    function imageFromFeed(item) {
+      const direct = safeHttpUrl(item.image) || safeHttpUrl(item.banner_image);
+      if (direct) return direct;
+      if (!Array.isArray(item.attachments)) return null;
+      for (const attachment of item.attachments) {
+        if (!attachment || typeof attachment !== "object") continue;
+        const url = safeHttpUrl(attachment.url);
+        if (!url) continue;
+        const mime = String(attachment.mime_type || "").toLowerCase();
+        if (mime.startsWith("image/") || (!mime && /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(url))) return url;
+      }
+      return null;
+    }
+
+    function mapItemToArticle(item, feed) {
+      if (!item || typeof item !== "object") return null;
+      const link = normalizedArticleUrl(item.url || item.external_url || item.link);
+      if (!link) return null;
+      const articleHost = hostname(link);
+      if (!articleHost || isBlockedHost(articleHost)) return null;
+      const description = textFromFeed(item.content_text || item.description_text || item.summary || item.description_html || item.content_html || item.description || "");
+      const author = Array.isArray(item.authors) && typeof item.authors[0]?.name === "string" ? item.authors[0].name : (item.author || "");
+      return {
+        id: link, link,
+        host: feed.host, // Publisher identifier: works even when the article uses a subdomain.
+        articleHost,
+        feedId: feed.id,
+        feedName: feed.name,
+        title: textFromFeed(item.title || "Zonder titel") || "Zonder titel",
+        description,
+        author: String(author).slice(0, 200),
+        source: sourceName(feed.host),
+        image: safeHttpUrl(item.thumbnail) || imageFromFeed(item),
+        publishedAt: validTimestamp(item.date_published || item.pubDate || item.date_modified || item.published),
+        savedAt: null
+      };
+    }
+
+    function normalizeSearch(text) {
+      return String(text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("nl-NL");
+    }
+
+    function matchesSearch(article, terms) {
+      if (!terms.length) return true;
+      const haystack = normalizeSearch([
+        article.title, article.description, article.author, article.source, article.host
+      ].join(" "));
+      return terms.every((term) => haystack.includes(term));
+    }
+
+    /* ======================================================================
+       4. SOURCE-SPECIFIC KEYWORD RULES AND FEED RETRIEVAL
+       ====================================================================== */
+
+    // Exact normalized phrases, with word boundaries. Controlled prefix matches for
+    // a few Dutch education stems (e.g. school -> schoolbesturen, onderwijskwaliteit).
+    const NORMALIZED_RULES = Object.fromEntries(Object.entries(FILTER_TERMS).map(
+      ([key, terms]) => [key, terms.map(term => normalizeFilterText(term)).filter(Boolean)]
+    ));
+    const PREFIX_STEMS = ["school", "onderwijs", "leerling", "leraar", "leerkracht", "docent", "pedagog", "didact"];
+    const LIMITED_TITLE_ONLY = new Set(NORMALIZED_RULES.limitedTitleOnly);
+
+    function normalizeFilterText(value) {
+      return normalizeSearch(value).replace(/[^\p{L}\p{N}]+/gu, " ").replace(/\s+/g, " ").trim();
+    }
+
+    function findTerm(normalizedText, terms, allowStems = false) {
+      const padded = " " + normalizedText + " ";
+      const words = allowStems ? normalizedText.split(" ") : null;
+      for (const term of terms) {
+        if (padded.includes(" " + term + " ")) return term;
+        if (allowStems && !term.includes(" ") && PREFIX_STEMS.includes(term) &&
+            words.some(word => word.startsWith(term))) return term;
+      }
+      return null;
+    }
+
+    function applyEditorialRules(article, feed) {
+      const title = normalizeFilterText(article.title);
+      const excerpt = normalizeFilterText(article.description.slice(0, 500));
+      const full = [title, excerpt].filter(Boolean).join(" ");
+      const profile = feed.profile;
+
+      if (profile === "education-full") {
+        const whitelistWord = findTerm(full, NORMALIZED_RULES.whitelist, true);
+        if (!whitelistWord) return { accepted: false, reason: "Whitelist: geen onderwijsterm", type: "whitelist" };
+      }
+
+      // All blacklist profiles include limited anti-promotion rules.
+      // Generic CTA words are title-only; distinct phrases can also match
+      // early in the description to avoid blocking boilerplate in long snippets.
+      const limitedTitle = findTerm(title, NORMALIZED_RULES.limited);
+      if (limitedTitle) return { accepted: false, reason: 'Promotie/oproep: "' + limitedTitle + '"', type: "limited" };
+      const descTerms = NORMALIZED_RULES.limited.filter(t => !LIMITED_TITLE_ONLY.has(t) && t.split(" ").length >= 3);
+      const limitedDescription = findTerm(excerpt.slice(0, 170), descTerms);
+      if (limitedDescription) return { accepted: false, reason: 'Oproep in beschrijving: "' + limitedDescription + '"', type: "limited" };
+
+      if (profile === "limited") return { accepted: true };
+
+      if (STRICT_FULL_BLACKLIST) {
+        const strictMatch = findTerm(full, NORMALIZED_RULES.fullOriginal);
+        if (strictMatch) return { accepted: false, reason: 'Volledige blacklist: "' + strictMatch + '"', type: "full" };
+      }
+
+      const direct = findTerm(title, NORMALIZED_RULES.fullHardTitle);
+      if (direct) return { accepted: false, reason: 'Niet-sectornieuws: "' + direct + '"', type: "full" };
+
+      // Conditional terms: original list includes broad words such as politie,
+      // melding, rechter, dood and Europa. Never exclude on these alone.
+      const incident = findTerm(title, NORMALIZED_RULES.incident);
+      const location = findTerm(title, NORMALIZED_RULES.international);
+      const entertainment = findTerm(title, NORMALIZED_RULES.entertainment);
+      const foreignContext = findTerm(full, NORMALIZED_RULES.foreignContext);
+      const dutchAnchor = findTerm(full, NORMALIZED_RULES.dutchAnchor);
+      const context = findTerm(title, NORMALIZED_RULES.fullContextual);
+
+      if (entertainment && !findTerm(title, ["mediawijsheid", "digitale geletterdheid", "lesmateriaal", "onderwijs"], true)) {
+        return { accepted: false, reason: 'Entertainment: "' + entertainment + '"', type: "full" };
+      }
+      if (foreignContext && !dutchAnchor) {
+        return { accepted: false, reason: 'Onderwijs buiten Nederland: "' + foreignContext + '"', type: "full" };
+      }
+      if (location && incident && !dutchAnchor) {
+        return { accepted: false, reason: 'Buitenlands incident: "' + location + '" + "' + incident + '"', type: "full" };
+      }
+      // Strong context word combinations indicate incident reporting rather
+      // than sector developments. Only apply when no education-policy context.
+      const incidentIntensifiers = ["gewonden", "gewond", "neergestoken", "dood", "overleden", "slachtoffer", "aangehouden", "schiet", "moord", "mes", "brand", "ongeluk"];
+      const secondSignal = findTerm(title, incidentIntensifiers);
+      const policyContext = findTerm(title, ["schoolveiligheid", "sociale veiligheid", "leerlingenwelzijn", "schoolbeleid"]);
+      if (context && secondSignal && !policyContext) {
+        return { accepted: false, reason: 'Incidentbericht: "' + context + '" + "' + secondSignal + '"', type: "full" };
+      }
+      return { accepted: true };
+    }
+
+    async function fetchSingleFeed(feed) {
+      const endpoints = [feed.endpoint, feed.fallbackEndpoint].filter(Boolean);
+      const errors = [];
+      for (const endpoint of endpoints) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), FEED_TIMEOUT_MS);
+        try {
+          const response = await fetch(endpoint, { signal: controller.signal, cache: "no-store" });
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          const body = await response.text();
+          const trimmed = body.trimStart();
+          if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+            const data = JSON.parse(body);
+            const items = Array.isArray(data.items) ? data.items : (Array.isArray(data?.data?.items) ? data.data.items : null);
+            if (!items) throw new Error("JSON zonder items-lijst");
+            return items;
+          }
+          if (trimmed.startsWith("<")) return parseXmlFeed(body);
+          throw new Error("Geen JSON of RSS/XML");
+        } catch (error) {
+          errors.push(endpoint + ": " + (error.name === "AbortError" ? "time-out" : error.message));
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      throw new Error(errors.join(" | "));
+    }
+
+    function parseXmlFeed(xml) {
+      const doc = new DOMParser().parseFromString(xml, "application/xml");
+      if (doc.querySelector("parsererror")) throw new Error("Ongeldige RSS/XML");
+      const rootName = doc.documentElement?.localName;
+      if (!['rss','RDF','feed'].includes(rootName)) throw new Error("Dashboard HTML in plaats van RSS/XML");
+      const get = (node, tag) => [...node.children].find(c => c.localName === tag)?.textContent?.trim() || "";
+      return [...doc.querySelectorAll("item, entry")].map(item => {
+        const atomLink = [...item.children].find(c => c.localName === "link" && c.getAttribute("href"));
+        const enclosure = [...item.children].find(c => c.localName === "enclosure");
+        const media = [...item.children].find(c => c.localName === "content" && c.getAttribute("url"));
+        return {
+          title: get(item, "title"),
+          url: atomLink?.getAttribute("href") || get(item, "link"),
+          content_text: get(item, "description") || get(item, "summary") || get(item, "content"),
+          date_published: get(item, "pubDate") || get(item, "published") || get(item, "updated"),
+          image: media?.getAttribute("url") || enclosure?.getAttribute("url") || null
+        };
+      });
+    }
+
+    let renderProgressTimer = null;
+    function updateSourceResults(unique, finished, reports) {
+      state.articles = [...unique.values()].sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
+      state.byId = new Map(state.articles.map(a => [a.id, a]));
+      state.sourceStats.clear();
+      for (const article of state.articles) state.sourceStats.set(article.host, (state.sourceStats.get(article.host) || 0) + 1);
+      state.availableHosts = Object.keys(SOURCES);
+      buildSourceOptions();
+      renderArticles();
+      if (state.loading) showNotice(`${finished} van ${FEEDS.length} bronnen gecontroleerd; ${state.articles.length} artikelen verwerkt…`, "info");
+      renderDiagnostics(reports);
+    }
+
+    async function fetchFeeds() {
+      if (state.loading) return;
+      state.loading = true;
+      state.loadError = false;
+      state.reports = [];
+      state.rejected = [];
+      state.sourceFailures = [];
+      state.totalIncoming = 0;
+      state.totalExcluded = 0;
+      state.totalDuplicates = 0;
+      state.successfulFeeds = 0;
+      state.failedFeeds = 0;
+      $("refreshButton").disabled = true;
+      $("refreshText").textContent = "Laden…";
+      if (!state.checkedAt) $("freshnessLabel").textContent = "Artikelen laden…";
+      showNotice("Artikelen worden opgehaald…", "info");
+
+      const unique = new Map();
+      const reports = Array(FEEDS.length).fill(null);
+      let next = 0, finished = 0;
+      const scheduleUpdate = () => {
+        if (renderProgressTimer !== null) return;
+        renderProgressTimer = setTimeout(() => {
+          renderProgressTimer = null;
+          updateSourceResults(unique, finished, reports);
+        }, 300);
+      };
+
+      async function worker() {
+        while (next < FEEDS.length) {
+          const index = next++;
+          const feed = FEEDS[index];
+          const report = { feed: feed.name, profile: feed.profile, raw: 0, accepted: 0, rejected: 0, duplicates: 0, status: "ok", error: "" };
+          try {
+            const items = await fetchSingleFeed(feed);
+            state.successfulFeeds++;
+            report.raw = items.length;
+            state.totalIncoming += items.length;
+            for (const rawItem of items) {
+              const article = mapItemToArticle(rawItem, feed);
+              if (!article) continue;
+
+              // Apply publication-date rules before keyword filtering and deduplication.
+              const dateIssue = articleDateIssue(article.publishedAt);
+              if (dateIssue) {
+                report.rejected++;
+                state.totalExcluded++;
+                if (state.rejected.length < 350) {
+                  state.rejected.push({
+                    feed: feed.name,
+                    title: article.title,
+                    link: article.link,
+                    reason: dateIssue,
+                    type: "date"
+                  });
+                }
+                continue;
+              }
+
+              const evaluation = applyEditorialRules(article, feed);
+              if (!evaluation.accepted) {
+                report.rejected++;
+                state.totalExcluded++;
+                if (state.rejected.length < 350) state.rejected.push({ feed: feed.name, title: article.title, link: article.link, reason: evaluation.reason, type: evaluation.type });
+                continue;
+              }
+              if (unique.has(article.id)) {
+                report.duplicates++;
+                state.totalDuplicates++;
+                const prior = unique.get(article.id);
+                if (article.description.length > prior.description.length) prior.description = article.description;
+                if (!prior.image && article.image) prior.image = article.image;
+                continue;
+              }
+              unique.set(article.id, article);
+              report.accepted++;
+            }
+          } catch (error) {
+            report.status = "failed";
+            report.error = String(error.message || error);
+            state.failedFeeds++;
+            state.sourceFailures.push(feed.name);
+            console.warn("Bron mislukt:", feed.name, report.error);
+          }
+          reports[index] = report;
+          finished++;
+          scheduleUpdate();
+        }
+      }
+
+      try {
+        await Promise.all(Array.from({ length: Math.min(FETCH_CONCURRENCY, FEEDS.length) }, worker));
+        if (renderProgressTimer !== null) clearTimeout(renderProgressTimer);
+        renderProgressTimer = null;
+        updateSourceResults(unique, finished, reports);
+        state.reports = reports.filter(Boolean);
+        state.checkedAt = state.successfulFeeds ? Date.now() : state.checkedAt;
+        if (!state.successfulFeeds) {
+          state.loadError = true;
+          showNotice("Geen nieuwsbronnen bereikbaar. Controleer de verbinding en de directe JSON-feedlinks in de filtercontrole.", "error");
+        } else if (state.failedFeeds) {
+          showNotice(`${state.successfulFeeds} van ${FEEDS.length} bronnen geladen; ${state.failedFeeds} mislukt. Zie Filtercontrole onderaan.`, "warning");
+        } else {
+          hideNotice();
+        }
+      } catch (error) {
+        state.loadError = true;
+        console.error(error);
+        showNotice("Fout bij het verwerken van de bronfeeds: " + error.message, "error");
+      } finally {
+        state.loading = false;
+        $("refreshButton").disabled = false;
+        $("refreshText").textContent = "Vernieuwen";
+        updateFreshness();
+        renderArticles();
+        renderDiagnostics(state.reports);
+      }
+    }
+
+    function renderDiagnostics(reports) {
+      const summary = $("diagnosticsSummary");
+      const body = $("diagnosticsBody");
+      const failures = reports.filter(r => r?.status === "failed").length;
+      summary.textContent = `Filtercontrole — ${state.totalIncoming} ontvangen · ${state.totalExcluded} gefilterd · ${state.totalDuplicates} dubbelen · ${failures} bronfouten`;
+      const table = makeElement("table", "diag-table");
+      const head = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      ["Bron", "Regels", "Ontvangen", "Doorgelaten", "Afgewezen", "Dubbel", "Status"].forEach(label => headerRow.appendChild(makeElement("th", "", label)));
+      head.appendChild(headerRow);
+      table.appendChild(head);
+      const tbody = document.createElement("tbody");
+      for (const report of reports.filter(Boolean)) {
+        const row = document.createElement("tr");
+        [report.feed, report.profile, report.raw, report.accepted, report.rejected, report.duplicates, report.status === "failed" ? "Fout: " + report.error.slice(0, 120) : "OK"].forEach(value => row.appendChild(makeElement("td", "", String(value))));
+        if (report.status === "failed") row.className = "diag-failed";
+        tbody.appendChild(row);
+      }
+      table.appendChild(tbody);
+      body.replaceChildren(table);
+    }
+
+    // ----------------------------------------------------------------------
+    // Time and availability reporting
+    // ----------------------------------------------------------------------
+    function formatDate(ms) {
+      if (!ms) return "Datum onbekend";
+      const date = new Date(ms);
+      const now = new Date();
+      const dayNumber = (d) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000;
+      const days = dayNumber(now) - dayNumber(date);
+      if (days === 0) return "Vandaag";
+      if (days === 1) return "Gisteren";
+      return fullDateFormatter.format(date);
+    }
+
+    function updateFreshness() {
+      if (!state.checkedAt) {
+        if (!state.loading) {
+          $("freshnessLabel").textContent = "Nog geen geslaagde controle";
+          $("latestArticleLabel").textContent = "Klik op Vernieuwen om opnieuw te proberen.";
+        }
+        return;
+      }
+      const checked = new Date(state.checkedAt);
+      const checkedDate = fullDateFormatter.format(checked);
+      const time = checked.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+      $("freshnessLabel").textContent = `${state.loadError ? "Laatste geslaagde controle" : "Feeds gecontroleerd"}: ${checkedDate}, ${time}`;
+      const newest = state.articles.find((a) => a.publishedAt);
+      const latest = newest ? `Nieuwste artikel: ${formatDate(newest.publishedAt)}` : "Geen artikeldatums beschikbaar";
+      const feedHealth = state.loadError
+        ? "Laatste vernieuwpoging mislukt"
+        : `${state.successfulFeeds}/${FEEDS.length} bronnen bereikbaar`;
+      $("latestArticleLabel").textContent = `${latest} · ${feedHealth}`;
+    }
+
+    function showNotice(message, type = "info") {
+      const box = $("feedNotice");
+      box.textContent = message;
+      box.className = "notice" + (type === "info" ? "" : " " + type);
+      box.hidden = false;
+    }
+    function hideNotice() { $("feedNotice").hidden = true; }
+
+    let toastTimeout;
+    function showToast(message) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.hidden = false;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => { toast.hidden = true; }, 2900);
+    }
+
+    /* ======================================================================
+       5. SOURCE FILTERS & PRESETS
+       ====================================================================== */
+    function hostsInGroup(groupId) {
+      // Include configured sources even if they have no current articles.
+      // Otherwise saved group presets would silently exclude them on future visits.
+      return Object.keys(SOURCES).filter((host) => sourceGroup(host) === groupId);
+    }
+
+    function setSourceSelection(mode, hosts = state.selectedHosts) {
+      state.selectionMode = mode;
+      state.selectedHosts = new Set(hosts);
+      savePreferences();
+      syncSourceControls();
+      renderArticles();
+    }
+
+    function toggleGroup(groupId) {
+      const hosts = hostsInGroup(groupId);
+      if (!hosts.length) return;
+      if (state.selectionMode === "all") {
+        // First preset click replaces 'all' with precisely that group.
+        setSourceSelection("custom", hosts);
+        return;
+      }
+      const selected = new Set(state.selectedHosts);
+      const wholeGroupSelected = hosts.every((host) => selected.has(host));
+      hosts.forEach((host) => wholeGroupSelected ? selected.delete(host) : selected.add(host));
+      setSourceSelection("custom", selected);
+    }
+
+    function toggleHost(host, checked) {
+      const selected = state.selectionMode === "all"
+        ? new Set([...Object.keys(SOURCES), ...state.availableHosts])
+        : new Set(state.selectedHosts);
+      if (checked) selected.add(host);
+      else selected.delete(host);
+      setSourceSelection("custom", selected);
+    }
+
+    function buildSourceOptions() {
+      const root = $("sourceOptions");
+      const fragment = document.createDocumentFragment();
+      const sections = [...GROUPS, { id: "other", label: "Overige bronnen" }];
+      let found = false;
+
+      for (const group of sections) {
+        const hosts = (group.id === "other"
+          ? state.availableHosts.filter((host) => !SOURCES[host])
+          : hostsInGroup(group.id)
+        ).sort((a, b) => collator.compare(sourceName(a), sourceName(b)));
+        if (!hosts.length) continue;
+        found = true;
+        const heading = makeElement("div", "source-group-heading", group.label);
+        fragment.appendChild(heading);
+        for (const host of hosts) {
+          const label = makeElement("label", "source-item");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = host;
+          checkbox.dataset.host = host;
+          checkbox.checked = state.selectionMode === "all" || state.selectedHosts.has(host);
+          const name = makeElement("span", "source-item-name", sourceName(host));
+          const count = makeElement("span", "source-item-count", String(state.sourceStats.get(host) || 0));
+          label.append(checkbox, name, count);
+          fragment.appendChild(label);
+        }
+      }
+      if (!found) fragment.appendChild(makeElement("p", "source-help", "Nog geen bronnen beschikbaar."));
+      root.replaceChildren(fragment);
+      syncSourceControls();
+    }
+
+    function syncSourceControls() {
+      const allMode = state.selectionMode === "all";
+      $("allSourcesButton").setAttribute("aria-pressed", String(allMode));
+      $("sourceSummaryText").textContent = allMode
+        ? "Bronnen"
+        : `Bronnen (${state.selectedHosts.size})`;
+
+      $("sourceOptions").querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+        checkbox.checked = allMode || state.selectedHosts.has(checkbox.dataset.host);
+      });
+      document.querySelectorAll(".preset-btn[data-group]").forEach((button) => {
+        const hosts = hostsInGroup(button.dataset.group);
+        button.disabled = hosts.length === 0;
+        const availableCount = hosts.filter((host) => state.sourceStats.has(host)).length;
+        button.title = `${hosts.length} bronnen in deze groep; ${availableCount} met artikelen in de huidige feed`;
+        if (allMode || !hosts.length) {
+          button.setAttribute("aria-pressed", "false");
+        } else {
+          const numSelected = hosts.filter((host) => state.selectedHosts.has(host)).length;
+          button.setAttribute("aria-pressed", numSelected === 0 ? "false" : numSelected === hosts.length ? "true" : "mixed");
+        }
+      });
+    }
+
+    /* ======================================================================
+       6. BOOKMARKS, SEARCH & DISPLAY
+       ====================================================================== */
+    function toggleBookmark(id) {
+      if (state.bookmarks.has(id)) {
+        state.bookmarks.delete(id);
+        showToast("Artikel verwijderd uit Bewaarde artikelen.");
+      } else {
+        const article = state.byId.get(id);
+        if (!article) return;
+        state.bookmarks.set(id, {
+          ...article,
+          description: article.description.slice(0, 900),
+          savedAt: Date.now()
+        });
+        showToast("Artikel bewaard.");
+      }
+      saveBookmarks();
+      renderArticles();
+    }
+
+    function setView(view) {
+      state.view = view === "compact" ? "compact" : "magazine";
+      document.querySelectorAll("[data-view]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
+      });
+      savePreferences();
+      renderArticles();
+    }
+
+    function setTab(tab) {
+      state.tab = tab === "saved" ? "saved" : "news";
+      $("tabNews").setAttribute("aria-pressed", String(state.tab === "news"));
+      $("tabSaved").setAttribute("aria-pressed", String(state.tab === "saved"));
+      $("newsFilters").hidden = state.tab === "saved";
+      $("sourceDetails").open = false;
+      $("searchInput").placeholder = state.tab === "saved"
+        ? "Zoek bewaard…" : "Zoeken…";
+      renderArticles();
+    }
+
+const articleDayFormatter = new Intl.DateTimeFormat("nl-NL", {
+  timeZone: "Europe/Amsterdam",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit"
+});
+
+
+function mixPublishersWithinDay(articles) {
+  const days = new Map();
+
+  // Group articles by date and publisher.
+  for (const article of articles) {
+    const dayKey = article.publishedAt
+      ? articleDayFormatter.format(new Date(article.publishedAt))
+      : "zonder-datum";
+
+    if (!days.has(dayKey)) {
+      days.set(dayKey, new Map());
+    }
+
+    const publishers = days.get(dayKey);
+    const publisher = article.source || article.host || "Onbekend";
+
+    if (!publishers.has(publisher)) {
+      publishers.set(publisher, []);
+    }
+
+    publishers.get(publisher).push(article);
+  }
+
+  const mixed = [];
+
+  // Process each day separately, newest day first.
+  for (const publishers of days.values()) {
+    const groups = [...publishers.entries()].map(([publisher, queue]) => ({
+      publisher,
+      queue,
+      total: queue.length,
+      used: 0
+    }));
+
+    const totalForDay = groups.reduce(
+      (sum, group) => sum + group.total, 0
+    );
+
+    // Distribute each publisher proportionally across the day.
+    for (let slot = 0; slot < totalForDay; slot++) {
+      let bestGroup = null;
+      let bestScore = -Infinity;
+
+      for (const group of groups) {
+        if (group.used >= group.total) continue;
+
+        const score =
+          ((slot + 1) * group.total / totalForDay) - group.used;
+
+        const candidateDate =
+          group.queue[group.used].publishedAt || 0;
+
+        const bestDate =
+          bestGroup?.queue[bestGroup.used].publishedAt || 0;
+
+        if (
+          score > bestScore + 1e-9 ||
+          (
+            Math.abs(score - bestScore) <= 1e-9 &&
+            candidateDate > bestDate
+          )
+        ) {
+          bestGroup = group;
+          bestScore = score;
+        }
+      }
+
+      mixed.push(bestGroup.queue[bestGroup.used]);
+      bestGroup.used++;
+    }
+  }
+
+  return mixed;
+}
+    function filteredArticles() {
+      const terms = normalizeSearch(state.search).trim().split(/\s+/).filter(Boolean);
+      const input = state.tab === "saved"
+        ? [...state.bookmarks.values()].sort((a, b) => (b.savedAt || 0) - (a.savedAt || 0))
+        : state.articles;
+      const matched = input.filter((article) => {
+        if (state.tab === "news" && state.selectionMode === "custom" && !state.selectedHosts.has(article.host)) return false;
+        return matchesSearch(article, terms);
       });
 
-      async function fetchFeed() {
-        const statusEl = document.getElementById("status");
-
-        try {
-          statusEl.textContent = "Artikelen worden geladen…";
-
-          // Fetch all feeds in parallel (don’t fail everything if 1 feed fails)
-          const results = await Promise.allSettled(
-            FEED_URLS.map(async (url) => {
-              const res = await fetch(url);
-              if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-              const data = await res.json();
-              return data.items || [];
-            })
-          );
-
-          // Combine all items from successful feeds
-          const combinedItems = results
-            .filter((r) => r.status === "fulfilled")
-            .flatMap((r) => r.value);
-
-          // Map into your normalized article format
-          allArticles = combinedItems.map(mapItemToArticle).filter(Boolean);
-
-          // De-duplicate (by link)
-          const seen = new Set();
-          allArticles = allArticles.filter((a) => {
-            if (!a.link || seen.has(a.link)) return false;
-            seen.add(a.link);
-            return true;
-          });
-
-          // Sort newest first
-          allArticles.sort((a, b) => new Date(b.pubDate || 0) - new Date(a.pubDate || 0));
-
-          buildSourceDropdown(allArticles);
-          renderArticles();
-
-          const failedCount = results.filter((r) => r.status === "rejected").length;
-          statusEl.textContent =
-            `Geladen: ${allArticles.length} artikelen.` + (failedCount ? ` (${failedCount} feed(s) mislukt)` : "");
-          statusEl.classList.remove("error");
-        } catch (err) {
-          console.error(err);
-          statusEl.textContent = "Laden is mislukt. Zie console voor details.";
-          statusEl.classList.add("error");
-        }
+      // The per-host cap applies only to the newsfeed, never to the reading list.
+      if (state.tab === "saved") return { shown: matched, matching: matched.length, total: input.length };
+      const counts = new Map();
+      const shown = [];
+      for (const article of matched) {
+        const count = counts.get(article.host) || 0;
+        if (count >= MAX_PER_HOST) continue;
+        counts.set(article.host, count + 1);
+        shown.push(article);
       }
+      return {shown: mixPublishersWithinDay(shown), matching: matched.length, total: input.length};
+    }
 
-      function extractHostFromUrl(url) {
-        try {
-          const u = new URL(url);
-          return u.hostname.replace(/^www\./, "");
-        } catch (e) {
-          return "";
-        }
-      }
+    function makeElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
 
-      function isBlockedUrl(url) {
-        const host = extractHostFromUrl(url);
-        return BLOCKED_HOSTS.has(host);
-      }
+    function createCard(article) {
+      const card = makeElement("article", "article-card");
+      const link = makeElement("a", "card-link");
+      link.href = article.link; // normalized and restricted to http(s)
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.setAttribute("aria-label", `${article.title} – ${article.source} (opent in nieuw tabblad)`);
 
-      // Map hostnames to nice, stable source labels
-      function hostToSourceLabel(host) {
-        const map = {
-          "aob.nl": "AOb",
-          "avs.nl": "AVS",
-          "cito.nl": "Cito",
-          "cnv.nl": "CNV",
-          "didactiefonline.nl": "Didactief",
-          "dnmonline.nl": "De Nieuwe Meso",
-          "duo-onderwijs.nl": "DUO",
-          "expertisepuntburgerschap.nl": "Expertisecentrum Burgerschap",
-          "gespecialiseerdonderwijs.nl": "Sectorraad GO",
-          "gezondeschool.nl": "Gezonde School",
-          "kennisnet.nl": "Kennisnet",
-          "lezen.nl": "Stichting Lezen",
-          "nationaleonderwijsgids.nl": "Nationale Onderwijsgids",
-          "nji.nl": "NJi",
-          "noloc.nl": "NOLOC",
-          "nro.nl": "NRO",
-          "nieuwsbrievenminocw.nl": "OCW",
-          "onderwijsvanmorgen.nl": "Onderwijs van Morgen",
-          "ou.nl": "Open Universiteit",
-          "oudersenonderwijs.nl": "Ouders & Onderwijs",
-          "platformsamenopleiden.nl": "Platform Samen Opleiden",
-          "poraad.nl": "PO-Raad",
-          "schoolenveiligheid.nl": "School & Veiligheid",
-          "slo.nl": "SLO",
-          "steunpuntpassendonderwijs-povo.nl": "Steunpunt Passend Onderwijs",
-          "verus.nl": "Verus",
-          "vfpf.nl": "VfPf",
-          "vo-raad.nl": "VO-raad",
-          "voion.nl": "Voion",
-          "voo.nl": "VOO",
-          "vorsite.nl": "VOR",
-          "vosabb.nl": "VOS/ABB",
-          "klimmbo.nl": "KLIMmbo",
-          "netwerkmediawijsheid.nl": "Netwerk Mediawijsheid",
-          "nko.nl": "NKO (voormalig NRO)",
-          "onderwijsenexaminering.nl": "KLIMmbo",
-          "taalenrekenenmbo.nl": "KLIMmbo",
-          "trouw.nl":"Trouw",
-          "ad.nl":"Algemeen Dagblad",
-          "volkskrant.nl":"Volkskrant",
-          "nos.nl":"NOS",
-          "nrc.nl":"NRC",
-          "nieuws.nl":"Nieuws",
-          "metronieuws.nl":"Metro",
-          "pedrodebruyckere.blog":"Pedro de Bruyckere",
-          "kirschnered.nl":"Paul Kirschner",
-          // You can add more later if needed
-        };
-        return map[host] || "";
-      }
-
-      // preset helper functions
-      function getPresetLabels(presetKey) {
-        const hosts = PRESETS_BY_HOST[presetKey] || [];
-        return hosts
-          .map((h) => hostToSourceLabel(h) || h)
-          .filter(Boolean);
-      }
-      
-      function syncSourceCheckboxes() {
-        const optionsEl = document.getElementById("sourceOptions");
-        if (!optionsEl) return;
-      
-        optionsEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-          cb.checked = activeTags.has(cb.value);
-        });
-      }
-      
-      function updatePresetButtonStates() {
-        document.querySelectorAll(".preset-btn").forEach((btn) => {
-          const key = btn.dataset.preset;
-          const labels = getPresetLabels(key);
-          const allSelected =
-            labels.length > 0 && labels.every((l) => activeTags.has(l));
-      
-          btn.classList.toggle("active", allSelected);
-        });
-      }
-      
-      function setupPresetButtons() {
-        const bar = document.getElementById("presetBar");
-        if (!bar) return;
-      
-        bar.addEventListener("click", (e) => {
-          const btn = e.target.closest(".preset-btn");
-          if (!btn) return;
-      
-          const key = btn.dataset.preset;
-          const labels = getPresetLabels(key);
-          const allSelected =
-            labels.length > 0 && labels.every((l) => activeTags.has(l));
-      
-          if (allSelected) {
-            labels.forEach((l) => activeTags.delete(l));
-          } else {
-            labels.forEach((l) => activeTags.add(l));
-          }
-      
-          syncSourceCheckboxes();
-          updateSourceTriggerText([]);
-          renderArticles();
-          updatePresetButtonStates();
-        });
-      }
-
-      
-      // Provide a default image for each known source/host
-      function fallbackImageForHost(host) {
-        const map = {
-          "aob.nl":
-            "https://i.ytimg.com/vi/oRAxkBjuEkA/hq720.jpg?sqp=-oaymwE7CK4FEIIDSFryq4qpAy0IARUAAAAAGAElAADIQj0AgKJD8AEB-AH-CYAC0AWKAgwIABABGCMgZSgYMA8=&rs=AOn4CLCBSJUW1ORaDc-EY3JpgpnUyrvnGw",
-          "avs.nl": "https://avs.nl/wp-content/themes/labelvier/dist/images/avs-beeldmerk-tagline-rgb.svg",
-          "cito.nl": "https://www.marketingaccent.nl/wp-content/uploads/2015/01/logo-cito.jpg",
-          "cnv.nl": "https://www.sommbo.nl/wp-content/uploads/CNV-1.png",
-          "didactiefonline.nl": "https://boekenkrant.com/wp-content/uploads/2019/06/Didactief.png",
-          "dnmonline.nl": "https://dnmonline.nl/wp-content/uploads/2024/11/Logo_DNMonline_B-1024x312.png",
-          "duo-onderwijs.nl": "https://duo-onderwijs.nl/wp-content/uploads/2025/08/DSC3397-scaled.jpg",
-          "expertisepuntburgerschap.nl":
-            "https://www.expertisepuntburgerschap.nl/wp-content/themes/stuurlui/assets/img/logo.svg",
-          "gespecialiseerdonderwijs.nl":
-            "https://gespecialiseerdonderwijs.nl/wp-content/themes/gespecialiseerdonderwijs/build/img/sectorraad-go.b9b064d1.svg",
-          "gezondeschool.nl": "https://www.gezondeschool.nl/assets/img/logo.svg",
-          "kennisnet.nl": "https://van-ons.nl/wp-content/uploads/2024/10/Website-development-Kennisnet-internetbureau-Van-Ons.png",
-          "lezen.nl": "https://www.noblestreet.eu/wp-content/uploads/2022/08/stichting-lezen.jpg",
-          "nationaleonderwijsgids.nl": "https://www.kieresoe.nl/wp-content/uploads/2018/12/nationale-onderwijsgids.png",
-          "nji.nl": "https://www.nji.nl/logo.svg",
-          "noloc.nl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6h1pz57hRhG7jzWPjSeaieXvOSMpque2YuQ&s",
-          "nieuwsbrievenminocw.nl":
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Logo_ministerie_OCW.svg/1200px-Logo_ministerie_OCW.svg.png",
-          "nro.nl":
-            "https://media.licdn.com/dms/image/v2/D4E22AQHg5yqWPpeI-A/feedshare-shrink_800/B4EZova_k6IoAk-/0/1761732197755?e=2147483647&v=beta&t=S6ODw3RPQxinfcZVEtenfUdkqML0Yy8aYNmPHxixV0k",
-          "onderwijsvanmorgen.nl": "https://malmberg.nl/hubfs/31a60e2e-2b14-4d6f-8fe5-a7c747a362bb_Onderwijs-van-Morgen_staand_RGB.jpg",
-          "ou.nl": "https://studiegids.nl/wp-content/themes/herald-child/images/open-universiteit.png",
-          "oudersenonderwijs.nl": "https://oudersenonderwijs.nl/wp-content/uploads/2020/05/logo-e1590324367608.png",
-          "platformsamenopleiden.nl":
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROSJ1XLlL5LnobLWsgT-pRz5wBXLDArlgb_Q&s",
-          "poraad.nl": "https://www.poraad.nl/logo.svg",
-          "schoolenveiligheid.nl":
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzkpAOfWlNha3LjxHEBOMW44HERCXi8yRWrw&s",
-          "slo.nl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Logo_SLO.jpg",
-          "steunpuntpassendonderwijs-povo.nl":
-            "https://www.steunpuntpassendonderwijs-povo.nl/wp-content/uploads/2021/06/new-logo.svg",
-          "verus.nl": "https://verus.nl/dist/images/brand/verus-brand-horizontal.a048b8fa.svg",
-          "vfpf.nl": "https://www.solutionsfactory.nl/wp-content/uploads/2023/07/VervangingsfondsParticipatiefonds-inhuurdesk.png",
-          "vo-raad.nl": "https://cdn.sanity.io/images/mccftp3c/production/551a786ef3eeead61918fe982fd5e586140697fa-1500x855.jpg",
-          "voion.nl": "https://www.fvov.nl/wp-content/uploads/2022/03/voion-logo.jpg",
-          "voo.nl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ552umSwbhMhYJSc3_0UaYfAti5RMJozh7eQ&s",
-          "vorsite.nl": "https://www.aera.net/portals/38/dutch_1.png",
-          "vosabb.nl": "https://www.vosabb.nl/wp-content/uploads/2021/10/logo-vosabb.svg",
-          "pedrodebruyckere.blog":"https://pal.be/wp-content/uploads/2024/09/Pedro-De-Bruyckere-van-Stichting-Leerpunt.-Foto-Photonews.jpg",
-          "metronieuws.nl":"https://www.metronieuws.nl/wp-content/uploads/2021/05/metronieuws.png",
-        };
-
-        return map[host] || "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Professor_Teaching_a_Student_Cartoon.svg/2560px-Professor_Teaching_a_Student_Cartoon.svg.png"; // universal fallback
-      }
-
-      // Map this JSON Feed structure to a normalized article object
-      function mapItemToArticle(item) {
-        const title = item.title || "Untitled";
-        const link = item.url || "#";
-        if (link !== "#" && isBlockedUrl(link)) return null;
-
-        const description = item.content_text || "";
-        const pubDate = item.date_published || "";
-
-        // Full author string from the feed, still kept on the object
-        let author = "";
-        if (Array.isArray(item.authors) && item.authors.length > 0 && item.authors[0].name) {
-          author = item.authors[0].name;
-        }
-        
-        // Determine main image (forced per source if configured)
-        const host = extractHostFromUrl(link);
-        
-        let image = "";
-        if (FORCE_IMAGE_FOR_HOST[host]) {
-          // Always use forced image for this source
-          image = FORCE_IMAGE_FOR_HOST[host];
-        } else if (item.image) {
-          image = item.image;
-        } else if (
-          Array.isArray(item.attachments) &&
-          item.attachments.length > 0 &&
-          item.attachments[0].url
-        ) {
-          image = item.attachments[0].url;
-        } else {
-          image = fallbackImageForHost(host);
-        }
-
-        // Derive a stable source label from the URL/domain
-        const sourceLabel = hostToSourceLabel(host) || host || author;
-
-        const categories = sourceLabel ? [sourceLabel] : [];
-
-        return {
-          title,
-          link,
-          description,
-          pubDate,
-          author, // keep it if you might need it later
-          source: sourceLabel, // formatted source name
-          categories,
-          image,
-          host,
-        };
-      }
-
-      function updateSourceTriggerText(allTags) {
-        const textEl = document.getElementById("sourceTriggerText");
-
-        if (activeTags.size === 0) {
-          textEl.textContent = "Alle bronnen";
-        } else if (activeTags.size === 1) {
-          textEl.textContent = [...activeTags][0];
-        } else {
-          textEl.textContent = `${activeTags.size} bronnen geselecteerd`;
-        }
-      }
-
-      function buildSourceDropdown(articles) {
-        const trigger = document.getElementById("sourceTrigger");
-        const panel = document.getElementById("sourcePanel");
-        const optionsEl = document.getElementById("sourceOptions");
-        const btnAll = document.getElementById("sourceSelectAll");
-        const btnNone = document.getElementById("sourceClear");
-
-        // Collect unique tags
-        const tagSet = new Set();
-        articles.forEach((a) => a.categories.forEach((t) => t && tagSet.add(t.trim())));
-        const allTags = Array.from(tagSet).sort();
-
-        // Build checkbox list
-        optionsEl.innerHTML = "";
-        allTags.forEach((tag) => {
-          const row = document.createElement("label");
-          row.className = "multi-option";
-
-          const cb = document.createElement("input");
-          cb.type = "checkbox";
-          cb.value = tag;
-          cb.checked = activeTags.has(tag);
-
-          cb.addEventListener("change", () => {
-            if (cb.checked) activeTags.add(tag);
-            else activeTags.delete(tag);
-
-            updateSourceTriggerText(allTags);
-            renderArticles();
-            updatePresetButtonStates();
-          });
-
-          const txt = document.createElement("span");
-          txt.textContent = tag;
-
-          row.appendChild(cb);
-          row.appendChild(txt);
-          optionsEl.appendChild(row);
-        });
-
-        // Trigger open/close
-        function openPanel() {
-          panel.hidden = false;
-          trigger.setAttribute("aria-expanded", "true");
-        }
-
-        function closePanel() {
-          panel.hidden = true;
-          trigger.setAttribute("aria-expanded", "false");
-        }
-
-        function togglePanel() {
-          if (panel.hidden) openPanel();
-          else closePanel();
-        }
-
-        trigger.addEventListener("click", (e) => {
-          e.stopPropagation();
-          togglePanel();
-        });
-
-        // Click outside closes
-        document.addEventListener("click", () => closePanel());
-
-        // Prevent clicks inside panel from closing it
-        panel.addEventListener("click", (e) => e.stopPropagation());
-
-        // Actions: All / None
-        btnAll.addEventListener("click", () => {
-          activeTags = new Set(allTags);
-
-          // Update checkboxes
-          optionsEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = true));
-
-          updateSourceTriggerText(allTags);
-          renderArticles();
-          updatePresetButtonStates();
-        });
-
-        btnNone.addEventListener("click", () => {
-          activeTags.clear();
-
-          optionsEl.querySelectorAll('input[type="checkbox"]').forEach((cb) => (cb.checked = false));
-
-          updateSourceTriggerText(allTags);
-          renderArticles();
-          updatePresetButtonStates();
-        });
-
-        updateSourceTriggerText(allTags);
-      }
-
-      function setupSearch() {
-        const input = document.getElementById("searchInput");
-        input.addEventListener("input", (event) => {
-          searchQuery = event.target.value.toLowerCase();
-          renderArticles();
-        });
-      }
-
-      function renderArticles() {
-        const grid = document.getElementById("grid");
-        grid.innerHTML = "";
-
-        // 1. Apply tag + text filters
-        const filtered = allArticles.filter((article) => {
-          // Tag filter
-          if (activeTags.size > 0) {
-            const hasTag = article.categories.some((tag) => activeTags.has(tag));
-            if (!hasTag) return false;
-          }
-
-          // Text search
-          if (searchQuery) {
-            const text = (article.title + " " + article.description + " " + article.author).toLowerCase();
-            if (!text.includes(searchQuery)) return false;
-          }
-
-          return true;
-        });
-
-        // 2. Apply per-host limit
-        const hostCounts = {};
-        const limited = [];
-
-        filtered.forEach((article) => {
-          const host = article.host || "unknown";
-          if (!hostCounts[host]) hostCounts[host] = 0;
-
-          if (hostCounts[host] < MAX_PER_HOST) {
-            hostCounts[host]++;
-            limited.push(article);
-          }
-        });
-
-        // 3. Render only the limited list
-        limited.forEach((article) => {
-          const card = createCard(article);
-          grid.appendChild(card);
-        });
-
-        // 4. Status text
-        const statusEl = document.getElementById("status");
-        if (limited.length === 0 && allArticles.length > 0) {
-          statusEl.textContent = "Geen artikelen matchen deze filters.";
-        } else if (allArticles.length > 0) {
-          statusEl.textContent = "Weergegeven: " + limited.length + " van " + allArticles.length + " artikelen.";
-          statusEl.classList.remove("error");
-        }
-      }
-
-      function createCard(article) {
-        const card = document.createElement("article");
-        card.className = "card";
-
-        card.tabIndex = 0;
-        card.setAttribute("role", "link");
-
-        card.addEventListener("click", () => {
-          window.open(article.link, "_blank", "noopener,noreferrer");
-        });
-
+      // No image is requested in compact mode; neutral source fallback otherwise.
+      if (state.view === "magazine") {
+        const media = makeElement("div", "card-media");
+        const fallback = makeElement("div", "media-fallback", article.source);
+        media.appendChild(fallback);
         if (article.image) {
-          const imgDiv = document.createElement("div");
-          imgDiv.className = "card-image";
-          imgDiv.style.backgroundImage = `url("${article.image}")`;
-          card.appendChild(imgDiv);
+          const img = document.createElement("img");
+          img.alt = ""; // Decorative: title and source are present as text.
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.referrerPolicy = "no-referrer";
+          img.addEventListener("load", () => media.classList.add("has-image"));
+          img.addEventListener("error", () => { img.remove(); media.classList.remove("has-image"); });
+          img.src = article.image;
+          media.appendChild(img);
         }
-
-        const content = document.createElement("div");
-        content.className = "card-content";
-
-        const titleEl = document.createElement("h2");
-        titleEl.className = "card-title";
-        titleEl.textContent = article.title;
-        content.appendChild(titleEl);
-
-        const meta = document.createElement("div");
-        meta.className = "card-meta";
-
-        if (article.pubDate) {
-          const dateObj = new Date(article.pubDate);
-          const dateSpan = document.createElement("span");
-          dateSpan.textContent = dateObj.toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
-          meta.appendChild(dateSpan);
-        }
-
-        if (article.source) {
-          const sourceSpan = document.createElement("span");
-          sourceSpan.textContent = "· " + article.source;
-          meta.appendChild(sourceSpan);
-        }
-
-        content.appendChild(meta);
-
-        if (article.description) {
-          const desc = document.createElement("p");
-          desc.className = "card-description";
-          desc.textContent =
-            article.description.length > 220 ? article.description.slice(0, 220) + "…" : article.description;
-          content.appendChild(desc);
-        }
-
-        // Bottom row: tags (left) + "Lees meer" (right)
-        const bottomRow = document.createElement("div");
-        bottomRow.className = "card-bottom";
-
-        const tagsContainer = document.createElement("div");
-        tagsContainer.className = "card-tags";
-
-        article.categories.forEach((tag) => {
-          const span = document.createElement("span");
-          span.className = "card-tag";
-          span.textContent = tag;
-          tagsContainer.appendChild(span);
-        });
-
-        bottomRow.appendChild(tagsContainer);
-
-        const readMore = document.createElement("a");
-        readMore.className = "card-readmore";
-        readMore.href = article.link;
-        readMore.target = "_blank";
-        readMore.rel = "noopener noreferrer";
-        readMore.textContent = "Lees meer →";
-        readMore.addEventListener("click", (e) => e.stopPropagation());
-
-        bottomRow.appendChild(readMore);
-
-        content.appendChild(bottomRow);
-        card.appendChild(content);
-
-        return card;
+        link.appendChild(media);
       }
-    </script>
-    <!-- 100% privacy-first analytics -->
-<script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
 
-  </body>
+      const body = makeElement("div", "card-body");
+      const meta = makeElement("div", "card-meta");
+      meta.appendChild(makeElement("span", "source-name", article.source));
+      meta.appendChild(makeElement("span", "", "·"));
+      const date = makeElement("time", "", formatDate(article.publishedAt));
+      if (article.publishedAt) {
+        date.dateTime = new Date(article.publishedAt).toISOString();
+        date.title = fullDateFormatter.format(new Date(article.publishedAt));
+      }
+      meta.appendChild(date);
+      const title = makeElement("h2", "card-title", article.title);
+      body.append(meta, title);
+      if (article.description) {
+        const shortDescription = article.description.length > 280
+          ? article.description.slice(0, 277).trimEnd() + "…" : article.description;
+        body.appendChild(makeElement("p", "card-description", shortDescription));
+      }
+      body.appendChild(makeElement("span", "card-readmore", "Lees artikel ↗"));
+      link.appendChild(body);
+      card.appendChild(link);
+
+      const saved = state.bookmarks.has(article.id);
+      const bookmark = makeElement("button", "bookmark-btn");
+      bookmark.type = "button";
+      bookmark.dataset.bookmarkId = article.id;
+      bookmark.setAttribute("aria-pressed", String(saved));
+      bookmark.setAttribute("aria-label", saved ? `Verwijder ${article.title} uit bewaarde artikelen` : `Bewaar ${article.title}`);
+      bookmark.title = saved ? "Verwijderen uit bewaarde artikelen" : "Artikel bewaren";
+      const icon = makeElement("span", "icon");
+      // Static, trusted SVG; article text itself is always inserted via textContent.
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5Z"/></svg>';
+      bookmark.append(icon, makeElement("span", "bookmark-label", saved ? "Bewaard" : "Bewaar"));
+      card.appendChild(bookmark);
+      return card;
+    }
+
+    function renderEmpty(result) {
+      const box = makeElement("div", "empty-state");
+      const heading = makeElement("h3", "");
+      const explanation = makeElement("p", "");
+      let action = null;
+
+      if (state.tab === "saved") {
+        if (!state.bookmarks.size) {
+          heading.textContent = "Nog geen bewaarde artikelen";
+          explanation.textContent = "Gebruik het bladwijzericoon bij een artikel om het hier te bewaren, ook als het later uit de RSS-feed verdwijnt.";
+          action = { label: "Bekijk nieuws", handler: () => setTab("news") };
+        } else {
+          heading.textContent = "Geen bewaarde artikelen gevonden";
+          explanation.textContent = "Pas je zoekopdracht aan om je bewaarde artikelen terug te vinden.";
+          action = { label: "Zoekopdracht wissen", handler: clearSearch };
+        }
+      } else if (state.loading && !state.checkedAt) {
+        heading.textContent = "Artikelen worden geladen";
+        explanation.textContent = "De nieuwsbronnen worden opgehaald.";
+      } else if (state.selectionMode === "custom" && state.selectedHosts.size === 0) {
+        heading.textContent = "Geen bronnen geselecteerd";
+        explanation.textContent = "Kies een bronnengroep of toon alle bronnen om artikelen te zien.";
+        action = { label: "Alle bronnen tonen", handler: () => setSourceSelection("all", []) };
+      } else if (!state.articles.length) {
+        heading.textContent = state.loadError ? "Nieuws kon niet worden geladen" : "Nog geen artikelen beschikbaar";
+        explanation.textContent = "Probeer de nieuwsbronnen te vernieuwen.";
+        action = { label: "Opnieuw proberen", handler: fetchFeeds };
+      } else {
+        heading.textContent = "Geen artikelen gevonden";
+        explanation.textContent = "Er zijn geen artikelen die passen bij je zoekopdracht en geselecteerde bronnen.";
+        action = { label: "Toon alle bronnen en wis zoeken", handler: () => { clearSearch(); setSourceSelection("all", []); } };
+      }
+
+      box.append(heading, explanation);
+      if (action) {
+        const button = makeElement("button", "", action.label);
+        button.type = "button";
+        button.addEventListener("click", action.handler);
+        box.appendChild(button);
+      }
+      return box;
+    }
+
+    function renderArticles() {
+      const root = $("articles");
+      const result = filteredArticles();
+      root.className = "articles view-" + state.view;
+      root.setAttribute("aria-label", state.tab === "saved" ? "Bewaarde artikelen" : "Nieuwsartikelen");
+      const fragment = document.createDocumentFragment();
+      if (result.shown.length) {
+        for (const article of result.shown) fragment.appendChild(createCard(article));
+      } else {
+        fragment.appendChild(renderEmpty(result));
+      }
+      root.replaceChildren(fragment);
+
+      $("savedCount").textContent = String(state.bookmarks.size);
+      if (state.tab === "saved") {
+        $("resultCount").textContent = `${result.shown.length} van ${result.total} bewaarde artikelen`;
+      } else if (state.loading && !state.checkedAt) {
+        $("resultCount").textContent = "Artikelen worden geladen…";
+      } else if (result.matching > result.shown.length) {
+        $("resultCount").textContent = `${result.shown.length} getoond · ${result.total} totaal`;
+      } else {
+        $("resultCount").textContent = `${result.shown.length} getoond van ${result.total} artikelen`;
+      }
+    }
+
+    function clearSearch() {
+      $("searchInput").value = "";
+      state.search = "";
+      $("clearSearch").hidden = true;
+      renderArticles();
+      $("searchInput").focus();
+    }
+
+    /* ======================================================================
+       7. EVENT WIRING / STARTUP
+       ====================================================================== */
+    function setupEvents() {
+      let searchTimer;
+      $("searchInput").addEventListener("input", (event) => {
+        state.search = event.target.value;
+        $("clearSearch").hidden = !state.search;
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(renderArticles, 110);
+      });
+      $("clearSearch").addEventListener("click", clearSearch);
+      $("refreshButton").addEventListener("click", fetchFeeds);
+      $("tabNews").addEventListener("click", () => setTab("news"));
+      $("tabSaved").addEventListener("click", () => setTab("saved"));
+
+      document.querySelectorAll("[data-view]").forEach((button) => {
+        button.addEventListener("click", () => setView(button.dataset.view));
+      });
+      $("allSourcesButton").addEventListener("click", () => setSourceSelection("all", []));
+      $("presetBar").addEventListener("click", (event) => {
+        const button = event.target.closest(".preset-btn[data-group]");
+        if (button && !button.disabled) toggleGroup(button.dataset.group);
+      });
+      $("sourceAll").addEventListener("click", () => setSourceSelection("all", []));
+      $("sourceNone").addEventListener("click", () => setSourceSelection("custom", []));
+      $("sourceOptions").addEventListener("change", (event) => {
+        const input = event.target.closest('input[type="checkbox"][data-host]');
+        if (input) toggleHost(input.dataset.host, input.checked);
+      });
+
+      // A <details> dropdown is keyboard-operable without custom listbox code.
+      document.addEventListener("pointerdown", (event) => {
+        const details = $("sourceDetails");
+        if (details.open && !details.contains(event.target)) details.open = false;
+      });
+      document.addEventListener("keydown", (event) => {
+        const details = $("sourceDetails");
+        if (event.key === "Escape" && details.open) {
+          details.open = false;
+          $("sourcesSummary").focus();
+        }
+      });
+      $("articles").addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-bookmark-id]");
+        if (button) toggleBookmark(button.dataset.bookmarkId);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadPreferences();
+      loadBookmarks();
+      setupEvents();
+      document.querySelectorAll("[data-view]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
+      });
+      syncSourceControls();
+      fetchFeeds();
+      renderArticles();
+    });
+  </script>
+  <!-- Existing traffic statistics integration, preserved from the original page. -->
+  <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+</body>
 </html>
